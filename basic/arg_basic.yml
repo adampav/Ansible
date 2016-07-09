@@ -1,0 +1,6 @@
+---
+- hosts: local
+  become: yes
+  tasks:
+    - name: Install Packages
+      apt: name={{ package_choice }} state=latest

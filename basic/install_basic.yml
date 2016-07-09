@@ -1,0 +1,11 @@
+---
+- hosts: local
+  become: yes
+  tasks:
+    - name: Install Packages
+      apt: name={{ item }} state=latest
+      with_items:
+        - vim
+        - git-core
+        - curl
+        - python-dev
