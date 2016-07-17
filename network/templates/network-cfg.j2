@@ -7,11 +7,9 @@ auto lo
 iface lo inet loopback
 
 # The primary network interface
-auto {{ item.iface }}
-iface {{ item.iface }} inet static
-    address {{ item.ip }}
-    netmask {{ item.netmask }}
-    network {{ item.network }}
-    broadcast {{ item.broadcast }}
-    gateway {{ item.gateway }}
-    dns-nameservers {{ item.dns }}
+auto eth1
+iface eth1 inet static
+    address {{ ansible_eth1.ipv4.address }}
+    netmask {{ ansible_eth1.ipv4.netmask }}
+    network {{ ansible_eth1.ipv4.network }}
+    broadcast {{ ansible_eth1.ipv4.broadcast }}

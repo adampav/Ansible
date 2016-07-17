@@ -1,0 +1,18 @@
+---
+- hosts: all
+  tasks:
+ #   - name: Gather All Facts
+  #    setup: 
+
+    - name: Debug Hostname
+      debug: var=ansible_eth1 
+      when: ansible_eth1.ipv4 is defined
+
+    - name: Create Template
+      template: src=templates/network-cfg.j2 dest=~/test.conf
+#      Need to add DNS & Gateway
+
+    - name: Restart Network Configuration
+   
+    - name: Test IP
+...
