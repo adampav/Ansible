@@ -1,18 +1,16 @@
 ---
 - hosts: all
   tasks:
- #   - name: Gather All Facts
-  #    setup: 
+    - name: Gather Facts
+      setup: 
 
-    - name: Debug Hostname
-      debug: var=ansible_eth1 
-      when: ansible_eth1.ipv4 is defined
+    - name: Print Facts
+      debug: var={"ansible_facts": "ansible_facts"}
 
-    - name: Create Template
-      template: src=templates/network-cfg.j2 dest=~/test.conf
-#      Need to add DNS & Gateway
-
-    - name: Restart Network Configuration
-   
-    - name: Test IP
+- include: upd-upgr.yml
+- include: ssh-keys.yml
+#- include: network-cfg.yml
+#- include: hostname.yml
+#- include: ssh-cfg.yml
+#- include: firewall.yml
 ...

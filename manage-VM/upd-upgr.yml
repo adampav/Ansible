@@ -1,2 +1,10 @@
 ---
+- hosts: all
+  become: yes
+  tasks:
+  - name: Install Packages
+    apt: name={{ item }} state=latest
+    with_items:
+      - git-core
+      - vim
 ...

@@ -1,6 +1,5 @@
 ---
 - hosts: all
-#  become: yes
   tasks:
     - name: Install ssh keys
       authorized_key: user={{ansible_user}} key="{{ lookup('file', '/home/docker/.ssh/ubuntu_vh.pub') }}"
