@@ -1,2 +1,21 @@
 ---
+- hosts: all
+  tasks:
+    - name: 
+
+    - name: Create Template
+      template: src=templates/network-cfg.j2 dest=~/test.conf
+#     Need to add DNS & Gateway
+
+    - name: Restart Network Configuration
+#      Use the shell ifdown-ifup
+# Prompt User for IPs?
+#  vars_prompt:
+#    - name: "safe_upgrade"
+#      prompt: "Do you want to aptitude safe upgrade? yes/no"
+#      default: "No"
+#    - name: "dist_upgrade"
+#      prompt: "Do you want to run apt-get dist-upgrade? yes/no"
+#      default: "Yes"
+  
 ...
