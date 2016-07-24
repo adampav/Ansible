@@ -3,8 +3,13 @@
   become: yes
   tasks:
   - name: Install Packages
-    apt: name={{ item }} state=latest
+    apt: name={{ item }} state=latest update_cache=yes 
     with_items:
       - git-core
       - vim
+      - ufw
+      - openssh-server
+  - name: Update & Upgrade
+#   pause: prompt="I am about to update and upgrade the machine. Press ^C + a to abort"
+    shell: "apt-get update"
 ...
