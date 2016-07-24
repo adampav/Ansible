@@ -1,6 +1,12 @@
 ---
 - hosts: all
+  vars_prompt:
+    - name: "public_key"
+      prompt: "Please enter the path for the public key"
+      default: "/root/.ssh/id_rsa.pub"
+      private: no
+
   tasks:
     - name: Install ssh keys
-      authorized_key: user={{ansible_user}} key="{{ lookup('file', '/home/docker/.ssh/ubuntu_vh.pub') }}"
+      authorized_key: user={{ansible_user}} key="{{ lookup('file', public_key) }}"
 ...
