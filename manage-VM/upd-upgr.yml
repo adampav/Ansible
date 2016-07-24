@@ -2,14 +2,30 @@
 - hosts: all
   become: yes
   tasks:
-  - name: Install Packages
-    apt: name={{ item }} state=latest update_cache=yes 
+  - name: Update
+    apt: update_cache=yes
+
+  - name: Safe Upgrade (aptitude)
+    apt: upgrade=x"no"
+    when: safe_upgrade =="Yes"
+
+  - name: Dist Upgrade (apt-get)
+    apt: upgrade=x"no"
+    when: dist_upgrade =="Yes"
+
+  - name: Install Important Packages
+    apt: name={{ item }} state=latest
     with_items:
       - git-core
       - vim
       - ufw
       - openssh-server
-  - name: Update & Upgrade
-#   pause: prompt="I am about to update and upgrade the machine. Press ^C + a to abort"
-    shell: "apt-get update"
+
+  vars_prompt:
+    - name: "safe_upgrade"
+      prompt: "Do you want to aptitude safe upgrade? yes/no"
+      default: "No"
+    - name: "dist_upgrade"
+      prompt: "Do you want to run apt-get dist-upgrade? yes/no"
+      default: "Yes"
 ...
