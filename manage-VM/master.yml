@@ -1,14 +1,11 @@
 ---
+- include: ssh-keys.yml
 - hosts: all
   tasks:
-    - name: Gather Facts
-      setup: 
-
     - name: Print Facts
-      debug: var={"ansible_facts": "ansible_facts"}
+      debug: var=ansible_all_ipv4_addresses
 
 - include: upd-upgr.yml
-- include: ssh-keys.yml
 #- include: network-cfg.yml
 #- include: hostname.yml
 #- include: ssh-cfg.yml
