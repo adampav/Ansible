@@ -7,11 +7,11 @@
 
   - name: Safe Upgrade (aptitude)
     apt: upgrade=x"no"
-    when: safe_upgrade =="Yes"
+    when: safe_upgrade=="Yes"
 
   - name: Dist Upgrade (apt-get)
     apt: upgrade=x"no"
-    when: dist_upgrade =="Yes"
+    when: dist_upgrade=="Yes"
 
   - name: Install Important Packages
     apt: name={{ item }} state=latest
