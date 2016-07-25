@@ -6,6 +6,7 @@
       debug: var=ansible_all_ipv4_addresses
 
 - include: upd-upgr.yml
+- include: network-gather.yml
 #- include: network-cfg.yml
 #- include: hostname.yml
 #- include: ssh-cfg.yml
