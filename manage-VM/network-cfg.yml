@@ -20,42 +20,58 @@
   handlers:
     - name: Append Configuration
 # TODO Change test-base.conf to /etc/network/interfaces
-      shell: cat ~/test-append.conf >> test-base.conf     
-      notify: Restart Network
+      shell: cat ~/test-append.conf >> ~/test-base.conf     
+      notify: 
+        - Restart Network
+        - Remove Temp
 
     - name: Restart Network
-      command: bash -c "sudo ifdown {{iface}} && sudo ifup {{iface}}"
+      command: bash -c "sudo ifdown {{desired_IFACE}} && sudo ifup {{desired_IFACE}}"
+      notify: Restart Again
 
-#    - name: Restart Network Configuration
-#      Use the shell ifdown-ifup
+    - name: Remove Temp
+      file: path=~/test-base.conf state=absent
+
+    - name: Restart Again
+      command: bash -c "sudo ifdown {{desired_IFACE}} && sudo ifup {{desired_IFACE}}"
+ 
+
 # Prompt User for IPs?
   vars_prompt:
-    - name: "iface"
+    - name: "desired_IFACE"
       prompt: "Please Select the Network Interface you want to create the configuration for"
       default: "eth0"
+      private: no
     
     - name: "append_flag"
       prompt: "Append to already existing config?"
       default: "No"
+      private: no
 
     - name: "desired_IP"
       prompt: "Please Input the desired IP Address"
+      private: no
 
     - name: "desired_MASK"
       prompt: "Please Input the desired Network Mask"
       default: "255.255.255.0"
+      private: no
 
     - name: "desired_NETWORK"
       prompt: "Please Input the desired Network Address"
+      private: no
 
     - name: "desired_BROADCAST"
       prompt: "Please Input the desired Broadcast Address"
+      private: no
 
       # TODO Add functionality for Default DNS based on Groups
     - name: "desired_DNS"
       prompt: "Please Enter the desired DNS Servers"
       default: "8.8.8.8"
+      private: no
 
     - name: "desired_GATEWAY"
       prompt: "Please Enter the desired default Gateway"
+      private: no
 ...
