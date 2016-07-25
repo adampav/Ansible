@@ -1,21 +1,49 @@
 ---
 - hosts: all
   tasks:
-    - name: 
+    - name: List all Available Interfaces
+      debug: var=ansible_interfaces
+
+    - name: Select interface to view available info
+      prompt: "Select an Interface to view appropriate information"
 
     - name: Create Template
       template: src=templates/network-cfg.j2 dest=~/test.conf
-#     Need to add DNS & Gateway
 
-    - name: Restart Network Configuration
+#    - name: Restart Network Configuration
 #      Use the shell ifdown-ifup
 # Prompt User for IPs?
-#  vars_prompt:
-#    - name: "safe_upgrade"
-#      prompt: "Do you want to aptitude safe upgrade? yes/no"
-#      default: "No"
-#    - name: "dist_upgrade"
-#      prompt: "Do you want to run apt-get dist-upgrade? yes/no"
-#      default: "Yes"
-  
+  vars_prompt:
+    - name: "iface"
+      prompt: "Please Select the Network Interface you want to create the configuration for"
+      default: "eth0"
+    
+    - name: "append_flag"
+      prompt: "Append to already existing config?"
+      default: "No"
+
+    - name: "desired_IP"
+      prompt: "Please Input the desired IP Address"
+      default: {{ansible_default_ipv4.address}} || "0.0.0.0"
+
+    - name: "desired_MASK"
+      prompt: "Please Input the desired Network Mask"
+      default: {{ansible_default_ipv4.netmask}} || "255.255.255.0"
+
+    - name: "desired_NETWORK"
+      prompt: "Please Input the desired Network Address"
+      default: {{ansible_default_ipv4.network}} || "0.0.0.0"
+
+    - name: "desired_BROADCAST"
+      prompt: "Please Input the desired Broadcast Address"
+      default: {{ansible_default_ipv4.broadcast}} || "0.0.0.0"
+
+      # TODO Add functionality for Default DNS based on Groups
+    - name: "desired_DNS"
+      prompt: "Please Enter the desired DNS Servers"
+      default: {{ansible_dns}} || "8.8.8.8"
+
+    - name: "desired_GATEWAY"
+      prompt: "Please Enter the desired default Gateway"
+      default: {{ansible_default_ipv4.gateway}} || "0.0.0.0"
 ...
