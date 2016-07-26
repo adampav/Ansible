@@ -1,2 +1,7 @@
 ---
+- hosts: all
+  tasks:
+    - name: Enable Root Login with SSH
+    - name: Disable Password Authentication
+    - name: Allow Passwords from a specific IP range
 ...
