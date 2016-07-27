@@ -1,2 +1,18 @@
 ---
+- hosts: all
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: Setup ufw
+      ufw: state=enabled policy=deny
+
+    - name: Allow TCP Ports traffic
+      ufw: rule=allow port={{ item }} proto=tcp
+      with_items:
+        - 22
+      notify: Reload ufw
+
+  handlers:
+    - name: Reload ufw
+      ufw: state=reloaded
 ...
