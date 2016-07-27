@@ -1,26 +1,23 @@
 ---
 - hosts: all
+  become: yes
+  gather_facts: no
   tasks:
     - name: List all Available Interfaces
       debug: var=ansible_interfaces
 
-    #- name: Select interface to view available info
-    #  prompt: "Select an Interface to view appropriate information"
-
     - name: Create Base Configuration
-# TODO Change test-base.conf to /etc/network/interfaces
-      template: src=templates/network-base-cfg.j2 dest=~/test-base.conf
+      template: src=templates/network-base-cfg.j2 dest=/etc/network/interfaces force=yes backup=yes owner=root group=root mode=0644
       when: append_flag=="No"
 
     - name: Extend Base Configuration
-      template: src=templates/network-append-cfg.j2 dest=~/test-append.conf
+      template: src=templates/network-append-cfg.j2 dest=/etc/network/append.interfaces force=yes backup=yes owner=root group=root mode=0644
       when: append_flag!="No"
       notify: Append Configuration
 
   handlers:
     - name: Append Configuration
-# TODO Change test-base.conf to /etc/network/interfaces
-      shell: cat ~/test-append.conf >> ~/test-base.conf     
+      shell: cat /etc/network/append.interfaces >> /etc/network/interfaces
       notify: 
         - Restart Network
         - Remove Temp
@@ -35,8 +32,6 @@
     - name: Restart Again
       command: bash -c "sudo ifdown {{desired_IFACE}} && sudo ifup {{desired_IFACE}}"
  
-
-# Prompt User for IPs?
   vars_prompt:
     - name: "desired_IFACE"
       prompt: "Please Select the Network Interface you want to create the configuration for"
