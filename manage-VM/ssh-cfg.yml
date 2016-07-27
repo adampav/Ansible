@@ -1,7 +1,39 @@
 ---
 - hosts: all
+  become: yes
   tasks:
     - name: Enable Root Login with SSH
-    - name: Disable Password Authentication
-    - name: Allow Passwords from a specific IP range
+      lineinfile: dest=/etc/ssh/sshd_config
+                  regexp="^#?PasswordAuthentication"
+                  line="PasswordAuthentication no"
+                  state=present
+
+    - name: Disallow root SSH access
+      lineinfile: dest=/etc/ssh/sshd_config
+                  regexp="^#?PermitRootLogin"
+                  line="PermitRootLogin no"
+                  state=present
+
+    - name: Test for exemptions
+      shell: grep -P '^Match' /etc/ssh/sshd_config
+      ignore_errors: yes
+      register: test_match
+
+    - name: Append exemptions
+      shell: echo "Match address 147.102.13.0/24\n\tPermitRootLogin without-password" >> /etc/ssh/sshd_config
+      when: test_match.stdout == ""
+      notify: Restart ssh
+
+    - name: Replace Exemptions
+      replace: 
+        dest=/etc/ssh/sshd_config
+        regexp="Match\.*\n?\.*\n?\.*\n?"
+        replace="Match address 147.102.13.0/24\n\tPermitRootLogin without-password"
+        force=yes
+      when: test_match.stdout != ""
+      notify: Restart ssh
+
+  handlers:
+    - name: Restart ssh
+      service: name=ssh state=restarted
 ...

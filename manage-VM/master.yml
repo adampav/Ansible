@@ -10,5 +10,5 @@
 - include: network-cfg.yml
 #- include: hostname.yml
 #- include: ssh-cfg.yml
-#- include: firewall.yml
+- include: firewall.yml
 ...
