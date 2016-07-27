@@ -20,6 +20,8 @@
       - vim
       - ufw
       - openssh-server
+      - fail2ban
+      - logwatch
 
   vars_prompt:
     - name: "safe_upgrade"
