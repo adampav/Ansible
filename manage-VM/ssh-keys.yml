@@ -3,7 +3,7 @@
   vars_prompt:
     - name: "public_key"
       prompt: "Please enter the path for the public key"
-      default: "/root/.ssh/id_rsa.pub"
+      default: "~/.ssh/id_rsa.pub"
       private: no
 
   tasks:
