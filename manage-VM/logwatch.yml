@@ -5,6 +5,9 @@
   gather_facts: no
   become: yes
   tasks:
+    - name: Install Logwatch
+      apt: name=logwatch state=latest update_cache=yes
+
     - name: Set up Postfix to relay mail
       debconf: name=postfix 
                question= "{{item.question}}"
