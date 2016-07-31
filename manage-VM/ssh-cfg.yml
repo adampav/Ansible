@@ -20,7 +20,7 @@
       register: test_match
 
     - name: Append exemptions
-      shell: echo "Match address 147.102.13.0/24\n\tPermitRootLogin without-password" >> /etc/ssh/sshd_config
+      shell: echo "Match address 147.102.13.0/24\n\tPermitRootLogin without-password\n\tPasswordAuthentication yes\n" >> /etc/ssh/sshd_config
       when: test_match.stdout == ""
       notify: Restart ssh
 
@@ -28,12 +28,12 @@
       replace: 
         dest=/etc/ssh/sshd_config
         regexp="Match\.*\n?\.*\n?\.*\n?"
-        replace="Match address 147.102.13.0/24\n\tPermitRootLogin without-password"
+        replace="Match address 147.102.13.0/24\n\tPermitRootLogin without-password\n\tPasswordAuthentication yes\n"
         force=yes
       when: test_match.stdout != ""
       notify: Restart ssh
 
-  handlers:
-    - name: Restart ssh
-      service: name=ssh state=restarted
+#  handlers:
+#    - name: Restart ssh
+#      service: name=ssh state=restarted
 ...
