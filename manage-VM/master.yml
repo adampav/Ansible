@@ -12,4 +12,5 @@
 - include: ssh-cfg.yml
 - include: firewall.yml
 - include: logwatch.yml
+- include: fail2ban.yml
 ...
