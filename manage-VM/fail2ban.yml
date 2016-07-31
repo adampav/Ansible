@@ -1,0 +1,13 @@
+---
+- hosts: all
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: Install Fail 2 Ban
+      apt: name=fail2ban state=latest update_cache=yes
+
+    - name: Configure Fail2Ban
+      lineinfile:
+
+    - name: Test
+...
