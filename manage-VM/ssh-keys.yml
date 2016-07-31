@@ -15,6 +15,7 @@
       authorized_key: user={{ansible_user}} key= "{{lookup('file', public_key)}}"
     
     - name: Install ssh keys for root
+      become: yes
       authorized_key: user=root key= "{{lookup('file', root_public_key)}}"
       when: root_public_key != ""
 ...
