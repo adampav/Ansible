@@ -11,8 +11,28 @@
       with_items:
         - 22
       notify: Reload ufw
+    
+    - name: Exclude Subnet IP Range
+      # Change IP Range
+      ufw: rule=allow
+      notify: Reload ufw
+      when: Exclude_SUBNET is defined
+
+    - name: 
+      ufw: rule=allow port={{ Open_PORTS }}
+      notify: Reload ufw
+      when: Open_PORTS is defined
 
   handlers:
     - name: Reload ufw
       ufw: state=reloaded
+
+  vars_prompt:
+    - name: "Exclude_SUBNET"
+      prompt: "Please enter a subnet to be excluded"
+      private: no
+
+    - name: "Open_PORTS"
+      prompt: "Please enter more ports to be allowed"
+      private: no
 ...
