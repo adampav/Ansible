@@ -6,8 +6,15 @@
     - name: Install Fail 2 Ban
       apt: name=fail2ban state=latest update_cache=yes
 
-    - name: Configure Fail2Ban
-      lineinfile:
+    - name: Configure Ban Time
+      lineinfile: dest=/etc/fail2ban/jail.conf
+                  regexp="^#?bantime"
+                  line="bantime = 604800 ; 1 week"
 
-    - name: Test
+    - name: Configure Find Time
+      lineinfile: dest=/etc/fail2ban/jail.conf
+                  regexp="^#?findtime"
+                  line="bantime = 86400 ; 1 day"
+
+#    - name: Configure Max Retry for SSH
 ...
