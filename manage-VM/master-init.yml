@@ -6,9 +6,6 @@
 # Update - Upgrade - Verify Existence of Useful Packages
 - include: upd-upgr.yml
 
-# Static Network Configuration
-- include: network-cfg.yml
-
 # Modify SSHD configuration
 - include: ssh-cfg.yml
 
@@ -20,4 +17,7 @@
 
 # Configure fail2ban
 - include: fail2ban.yml
+
+# Static Network Configuration
+- include: network-cfg.yml
 ...
