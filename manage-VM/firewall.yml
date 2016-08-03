@@ -14,14 +14,16 @@
     
     - name: Exclude Subnet IP Range
       # Change IP Range
-      ufw: rule=allow
+      ufw: rule=allow from_ip={{ item }}
+      with_items: "{{Exclude_SUBNET}}"
       notify: Reload ufw
-      when: Exclude_SUBNET is defined
+      when: Exclude_SUBNET != ""
 
     - name: Allow More Ports
-      ufw: rule=allow port={{ Open_PORTS }}
+      ufw: rule=allow port={{ item }}
+      with_items: "{{Open_PORTS}}"
       notify: Reload ufw
-      when: Open_PORTS is defined
+      when: Open_PORTS != ""
 
   handlers:
     - name: Reload ufw
