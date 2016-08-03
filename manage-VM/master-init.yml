@@ -1,0 +1,23 @@
+---
+# To be run against only ONE machine
+# Add ssh keys
+- include: ssh-keys.yml
+
+# Update - Upgrade - Verify Existence of Useful Packages
+- include: upd-upgr.yml
+
+# Static Network Configuration
+- include: network-cfg.yml
+
+# Modify SSHD configuration
+- include: ssh-cfg.yml
+
+# Configure ufw
+- include: firewall.yml
+
+# Configure logwatch
+- include: logwatch.yml
+
+# Configure fail2ban
+- include: fail2ban.yml
+...
