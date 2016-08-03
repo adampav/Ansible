@@ -16,24 +16,25 @@
 
     - name: Test for exemptions
       shell: grep -P '^Match' /etc/ssh/sshd_config
-      ignore_errors: yes
       register: test_match
+      failed_when: test_match.rc != 0 and test_match.stdout != ""
 
     - name: Append exemptions
-      shell: echo "Match address 147.102.13.0/24\n\tPermitRootLogin without-password\n\tPasswordAuthentication yes\n" >> /etc/ssh/sshd_config
+      shell: echo "Match address 147.102.13.0/24\n\tPermitRootLogin without-password\n\tPasswordAuthentication yes" >> /etc/ssh/sshd_config
       when: test_match.stdout == ""
       notify: Restart ssh
 
+      # Use Specific Hosts both in REGEX as well as Exemption
     - name: Replace Exemptions
       replace: 
         dest=/etc/ssh/sshd_config
-        regexp="Match\.*\n?\.*\n?\.*\n?"
+        regexp="Match.+\n.+\n.*\n?"
         replace="Match address 147.102.13.0/24\n\tPermitRootLogin without-password\n\tPasswordAuthentication yes\n"
         force=yes
       when: test_match.stdout != ""
       notify: Restart ssh
 
-#  handlers:
-#    - name: Restart ssh
-#      service: name=ssh state=restarted
+  handlers:
+    - name: Restart ssh
+      service: name=ssh state=restarted
 ...
