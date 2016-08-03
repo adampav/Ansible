@@ -18,7 +18,7 @@
       notify: Reload ufw
       when: Exclude_SUBNET is defined
 
-    - name: 
+    - name: Allow More Ports
       ufw: rule=allow port={{ Open_PORTS }}
       notify: Reload ufw
       when: Open_PORTS is defined
