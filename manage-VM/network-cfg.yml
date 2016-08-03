@@ -3,9 +3,6 @@
   become: yes
   gather_facts: no
   tasks:
-    - name: List all Available Interfaces
-      debug: var=ansible_interfaces
-
     - name: Create Base Configuration
       template: src=templates/network-base-cfg.j2 dest=/etc/network/interfaces force=yes backup=yes owner=root group=root mode=0644
       when: append_flag=="No"
@@ -27,7 +24,7 @@
       notify: Restart Again
 
     - name: Remove Temp
-      file: path=~/test-base.conf state=absent
+      file: path=/etc.network/append.interfaces state=absent
 
     - name: Restart Again
       command: bash -c "sudo ifdown {{desired_IFACE}} && sudo ifup {{desired_IFACE}}"
@@ -63,7 +60,6 @@
       # TODO Add functionality for Default DNS based on Groups
     - name: "desired_DNS"
       prompt: "Please Enter the desired DNS Servers"
-      default: "8.8.8.8"
       private: no
 
     - name: "desired_GATEWAY"
