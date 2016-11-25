@@ -2,8 +2,8 @@
 - hosts: all
   become: yes
   
-  vars_files:
-    - fortk
+ # vars_files:
+  #  - fortk
 
   tasks:
     - name: Enable Root Login with SSH
@@ -42,10 +42,10 @@
     - name: Restart ssh CentOS Based
       service: name=sshd state=reloaded
       listen: "restart ssh"
-      when: ansible_os_family == "CentOS"
+      when: ansible_distribution == "CentOS"
 
     - name: Restart ssh BSD Based
       service: name=ssh state=reloaded
       listen: "restart ssh"
-      when: ansible_os_family == "FreeBSD"
+      when: ansible_distribution == "FreeBSD"
 ...
