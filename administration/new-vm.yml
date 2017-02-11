@@ -1,0 +1,10 @@
+---
+- hosts: all
+  become: true
+  vars:
+  roles:
+    - manage-ssh-keys
+    - manage-network-configuration
+    - manage-sshd-configuration
+  tasks:
+...

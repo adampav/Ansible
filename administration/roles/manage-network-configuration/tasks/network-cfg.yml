@@ -1,0 +1,68 @@
+---
+- hosts: all
+  become: yes
+  gather_facts: no
+  tasks:
+    - name: Create Base Configuration
+      template: src=templates/network-base-cfg.j2 dest=/etc/network/interfaces force=yes backup=yes owner=root group=root mode=0644
+      when: append_flag=="No"
+
+    - name: Extend Base Configuration
+      template: src=templates/network-append-cfg.j2 dest=/etc/network/append.interfaces force=yes backup=yes owner=root group=root mode=0644
+      when: append_flag!="No"
+      notify: Append Configuration
+
+  handlers:
+    - name: Append Configuration
+      shell: cat /etc/network/append.interfaces >> /etc/network/interfaces
+      notify: 
+        - Restart Network
+        - Remove Temp
+
+    - name: Restart Network
+      command: bash -c "sudo ifdown {{desired_IFACE}} && sudo ifup {{desired_IFACE}}"
+      notify: Restart Again
+
+    - name: Remove Temp
+      file: path=/etc.network/append.interfaces state=absent
+
+    - name: Restart Again
+      command: bash -c "sudo ifdown {{desired_IFACE}} && sudo ifup {{desired_IFACE}}"
+ 
+  vars_prompt:
+    - name: "desired_IFACE"
+      prompt: "Please Select the Network Interface you want to create the configuration for"
+      default: "eth0"
+      private: no
+    
+    - name: "append_flag"
+      prompt: "Append to already existing config?"
+      default: "No"
+      private: no
+
+    - name: "desired_IP"
+      prompt: "Please Input the desired IP Address"
+      private: no
+
+    - name: "desired_MASK"
+      prompt: "Please Input the desired Network Mask"
+      default: "255.255.255.0"
+      private: no
+
+    - name: "desired_NETWORK"
+      prompt: "Please Input the desired Network Address"
+      private: no
+
+    - name: "desired_BROADCAST"
+      prompt: "Please Input the desired Broadcast Address"
+      private: no
+
+      # TODO Add functionality for Default DNS based on Groups
+    - name: "desired_DNS"
+      prompt: "Please Enter the desired DNS Servers"
+      private: no
+
+    - name: "desired_GATEWAY"
+      prompt: "Please Enter the desired default Gateway"
+      private: no
+...

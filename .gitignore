@@ -1,3 +1,4 @@
 .cd-execute*
 *.swp
 *.retry
+.idea

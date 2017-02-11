@@ -1,0 +1,52 @@
+---
+- hosts: all
+  become: yes
+
+ # vars_files:
+  #  - fortk
+
+  tasks:
+    - name: Enable Root Login with SSH
+      lineinfile: dest=/etc/ssh/sshd_config
+                  regexp="^#?PasswordAuthentication"
+                  line="PasswordAuthentication no"
+                  state=present
+
+    - name: Disallow root SSH access
+      lineinfile: dest=/etc/ssh/sshd_config
+                  regexp="^#?PermitRootLogin"
+                  line="PermitRootLogin no"
+                  state=present
+
+    - name: Create Match  for exemptions
+      blockinfile:
+        dest: /etc/ssh/sshd_config
+        marker:
+          "# {mark} ANSIBLE MANAGED BLOCK Match address"
+        block: |
+          Match address {{ item }}
+                  PermitRootLogin without-password
+                  PasswordAuthentication yes
+      with_items:
+      # TODO put that value to default vars
+        - "147.102.13.0/24"
+      notify: "restart ssh"
+
+
+  handlers:
+# TODO: Fix Handlers!!! put that to handlers
+    - name: Restart ssh Debian Based
+      service: name=ssh state=reloaded
+      listen: "restart ssh"
+      when: (ansible_os_family == "Debian") or  (ansible_os_family == "Ubuntu")
+
+    - name: Restart ssh CentOS Based
+      service: name=sshd state=reloaded
+      listen: "restart ssh"
+      when: ansible_distribution == "CentOS"
+
+    - name: Restart ssh BSD Based
+      service: name=ssh state=reloaded
+      listen: "restart ssh"
+      when: ansible_distribution == "FreeBSD"
+...
