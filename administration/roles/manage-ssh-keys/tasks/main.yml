@@ -1,11 +1,10 @@
 ---
-- hosts: all
-  tasks:
-    - name: Install ssh keys
-      authorized_key: user={{ansible_user}} key="{{lookup('file', public_key)}}"
-
-    - name: Install ssh keys for root
-      become: yes
-      authorized_key: user=root key="{{lookup('file', root_public_key)}}"
-      when: root_public_key != ""
+- name: Install ssh keys
+  authorized_key:
+    user: "{{ item.0.username }}"
+    state: "{{ item.0.state }}"
+    key: "{{ lookup('file', item.1) }}"
+  with_subelements:
+    - '{{ ssh_vars }}'
+    - keys
 ...

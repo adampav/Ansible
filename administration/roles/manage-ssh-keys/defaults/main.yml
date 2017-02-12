@@ -1,1 +1,12 @@
-# template file - main.yml
+---
+# defaults vars file for manage-ssh-keys
+ssh_vars:
+  - username: root
+    state: present
+    keys:
+      - "/home/adam/.ssh/id_rsa.pub"
+  - username: "{{ ansible_user | default('{{ ansible_user_id }}') }}"
+    state: present
+    keys:
+      - "/home/adam/.ssh/id_rsa.pub"
+...
