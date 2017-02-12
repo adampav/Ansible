@@ -1,1 +1,3 @@
-# template file - main.yml
+---
+- include: network-cfg.yml
+...
