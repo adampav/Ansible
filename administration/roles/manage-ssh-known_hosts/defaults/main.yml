@@ -1,0 +1,2 @@
+# template file - main.yml
+managed_hosts: "{{ groups.all }}"

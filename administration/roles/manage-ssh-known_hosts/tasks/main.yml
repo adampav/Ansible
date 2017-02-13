@@ -1,0 +1,10 @@
+- name: add SSH keys to known_hosts
+  lineinfile:
+    dest: ~/.ssh/known_hosts
+    create: yes
+    state: present
+    line: "{{ lookup('pipe', 'ssh-keyscan -t rsa {{ item }}') }}"
+    regexp: "^{{ item }}"
+  run_once: True
+  with_items:
+    - "{{ managed_hosts }}"
