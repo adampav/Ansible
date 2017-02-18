@@ -3,4 +3,5 @@
   raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
   register: script
   changed_when: script.rc == "changed"
+  when: (ansible_os_family == "Debian") or (ansible_os_family == "Ubuntu")
 ...

@@ -11,7 +11,6 @@
   roles:
     - install-python
     - manage-ssh-keys
-    - manage-network-configuration
     - manage-sshd-configuration
   tasks:
 ...

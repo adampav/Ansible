@@ -6,7 +6,7 @@
 
 - hosts: all
   become: true
-  gather_facts: False
+  gather_facts: True
   vars:
   roles:
     - install-python

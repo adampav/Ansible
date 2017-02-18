@@ -5,7 +5,7 @@
   when: (ansible_os_family == "Debian") or  (ansible_os_family == "Ubuntu")
 
 - name: Restart ssh CentOS Based
-  service: name=sshd state=reloaded
+  service: name=sshd state=restarted
   listen: "restart ssh"
   when: ansible_distribution == "CentOS"
 
