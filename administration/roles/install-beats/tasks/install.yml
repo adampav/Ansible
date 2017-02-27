@@ -1,0 +1,50 @@
+---
+- name: Grab Facts
+  setup: gather_subset='all'
+
+#- name: Add Repository Key
+#  apt_key:
+#    url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
+#    state: present
+#  when: (ansible_os_family == "Debian") or (ansible_os_family == "Ubuntu")
+
+- name: Add apt sources
+  lineinfile:
+    dest: /etc/apt/sources.list.d/elastic-5.x.list
+    regexp: "^deb https://artifacts.elastic.co/packages/5.x/apt stable main"
+    line: "deb https://artifacts.elastic.co/packages/5.x/apt stable main"
+    state: present
+    owner: root
+    group: root
+    mode: 0644
+    create: True
+
+- name: Install Pre-Requisite
+  apt:
+    update_cache: yes
+    name: apt-transport-https
+    state: present
+
+- name: Install Beats
+  apt:
+    update_cache: yes
+    name: "{{ item.beatname }}"
+    state: present
+  with_items:
+    - '{{ beats_config }}'
+
+- name: Create Base Configuration for Filebeat
+  template: src="{{ item.template }}" dest="{{ item.config }}" force=yes backup=yes owner=root group=root mode=0644
+  with_items:
+    - '{{ beats_config }}'
+
+- name: Install CA Certificates
+  synchronize: src=/etc/pki/root/ dest=/etc/pki/root/
+  delegate_to: "{{ beats_config.fb.LS_HOST }}"
+
+- name: Install Client Certificates
+  synchronize: src=/etc/pki/client dest=/etc/pki/client/
+  delegate_to: "{{ beats_config.fb.LS_HOST }}"
+
+- name: Start Filebeat Service
+...

@@ -1,0 +1,35 @@
+---
+beats_config:
+  - beatname: "filebeat"
+    config: "/etc/filebeat/filebeat.yml"
+    template: "filebeat.yml.j2"
+
+    PROSPECTORS:
+    - input_type: "log"
+      document_type: "auth.log"
+      multiline_fg: False
+      paths:
+      - "/var/log/auth.log"
+
+    - input_type: "log"
+      document_type: "onos_logs"
+      multiline_fg: True
+      multiline_pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
+      multiline_negate: "True"
+      multiline_match: "after"
+      paths:
+      - "/opt/onos/log/karaf.log"
+
+    LS_VARS:
+      flag: True
+      LS_HOST: "localhost"
+      LS_PORT: "5044"
+      LS_CA: "/etc/pki/root/ca.pem"
+      LS_CERT: "/etc/pki/client/cert.pem"
+      LS_CLIENT_KEY: "/etc/pki/client/cert.key"
+
+    ES_VARS:
+      flag: False
+      ES_HOST: "localhost"
+      ES_PORT: "9200"
+...
