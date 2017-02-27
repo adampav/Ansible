@@ -1,11 +1,1 @@
----
-ipv4: ""
-netmask: ""
-network: ""
-broadcast: ""
-dns: ""
-gateway: ""
-iface: "{{ ansible_default_ipv4.alias }}"
-config: "/etc/network/interfaces"
-template: "network-base-cfg.j2"
-...
+# template file - main.yml
