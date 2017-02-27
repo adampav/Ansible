@@ -27,6 +27,7 @@ beats_config:
       LS_CA: "/etc/pki/root/ca.pem"
       LS_CERT: "/etc/pki/client/cert.pem"
       LS_CLIENT_KEY: "/etc/pki/client/cert.key"
+      LS_PKI_DIR: "LS_shared"
 
     ES_VARS:
       flag: False
