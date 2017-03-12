@@ -1,0 +1,17 @@
+---
+- name: Valuable configs
+  setup: gather_subset='system'
+
+- name: Modify /etc/hosts
+  lineinfile: dest="{{ item.dest }}"
+              regexp="{{ item.regexp }}"
+              line="{{ item.line }}"
+              state="{{ item.state }}"
+              # other options
+  with_items:
+    - var_file
+
+- name: Modify /etc/hostname
+  lineinfile: dest=/etc/hostname
+              # TODO Overwrite /etc/hostname
+...
