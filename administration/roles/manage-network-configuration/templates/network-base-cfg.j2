@@ -6,12 +6,21 @@
 auto lo
 iface lo inet loopback
 
-# The primary network interface
-auto {{ iface }}
-iface {{ iface }} inet static
-    address {{ ipv4 }}
-    netmask {{ netmask }}
-    network {{ network }}
-    broadcast {{ broadcast }}
-    gateway {{ gateway }}
-    dns-nameserver {{ dns }}
+# Network Interfaces
+{% for interface in interfaces %}
+{% if (interface.iface is defined and interface.iface != "") %}
+auto {{ interface.iface }}
+iface {{ interface.iface }} inet static
+    address {{ interface.ipv4 }}
+    netmask {{ interface.netmask }}
+    network {{ interface.network }}
+    broadcast {{ interface.broadcast }}
+{% if interface.gateway is defined %}
+    gateway {{ interface.gateway }}
+{% endif %}
+{% if interface.dns is defined %}
+    dns-nameserver {{ interface.dns }}
+{% endif %}
+{% endif %}
+
+{% endfor %}
