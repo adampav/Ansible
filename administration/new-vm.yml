@@ -14,6 +14,6 @@
     - manage-network-configuration
     - manage-sshd-configuration
   tasks:
-      - name: reboot the system when package is upgraded
+    - name: reboot the system when package is upgraded
       command: /sbin/shutdown -r 1 "Ansible system package upgraded"
 ...
