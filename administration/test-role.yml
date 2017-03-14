@@ -1,0 +1,14 @@
+---
+- hosts: 127.0.0.1
+  gather_facts: false
+  roles:
+    - manage-ssh-known_hosts
+
+- hosts: all
+  become: true
+  gather_facts: False
+  vars:
+  roles:
+    - manage-hostnames
+  tasks:
+...
