@@ -1,1 +1,17 @@
-# template file - main.yml
+---
+interfaces:
+- ipv4: "{{ primary_ip }}"
+  netmask: ""
+  network: ""
+  broadcast: ""
+  dns: ""
+  gateway: ""
+  iface: "{{ primary_interface }}"
+
+primary_interface: "{{ ansible_default_ipv4.alias }}"
+primary_ip: ""
+debian_config: "/etc/network/interfaces"
+debian_template: "debian-network-base-cfg.j2"
+centos_config: "/etc/network/interfaces"
+centos_template: "debian-network-base-cfg.j2"
+...

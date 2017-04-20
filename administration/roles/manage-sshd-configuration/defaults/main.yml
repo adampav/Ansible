@@ -1,1 +1,10 @@
-# template file - main.yml
+---
+privileged_host:
+  - addr: ""
+    id: 1
+    state: "present"
+
+  - addr: ""
+    id: 2
+    state: "present"
+...
