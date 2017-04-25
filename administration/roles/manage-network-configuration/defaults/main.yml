@@ -1,7 +1,7 @@
 ---
 interfaces:
 - ipv4: "{{ primary_ip }}"
-  netmask: ""
+  netmask: "255.255.255.0"
   network: ""
   broadcast: ""
   dns: ""
@@ -10,6 +10,8 @@ interfaces:
 
 primary_interface: "{{ ansible_default_ipv4.alias }}"
 primary_ip: ""
+config: "{{ debian_config }}"
+template: "{{ debian_template }}"
 debian_config: "/etc/network/interfaces"
 debian_template: "debian-network-base-cfg.j2"
 centos_config: "/etc/network/interfaces"
