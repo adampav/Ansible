@@ -1,0 +1,87 @@
+#=========================== Filebeat prospectors =============================
+
+filebeat.prospectors:
+{% if item.SSH_FG %}
+- input_type: log
+  # Two filenames are specified to cover CentOS and Ubuntu flavored OSes
+  paths:
+    - "/var/log/auth.log"
+    - "/var/log/secure"
+  document_type: auth
+  fields:
+    service: sshd
+  fields_under_root: true
+  include_lines: ["Failed"]
+{% endif %}
+
+{% if item.DOVECOT_FG %}
+- input_type: log
+  # Two filenames are specified to cover CentOS and Ubuntu flavored OSes
+  paths:
+    - "/var/log/dovecot.log"
+  document_type: mail
+  fields:
+    service: dovecot
+  fields_under_root: true
+  include-lines: [""]
+{% endif %}
+
+{% if item.APACHE_FG %}
+- input_type: log
+  paths:
+    # Cover All Linux distributions
+    - "/var/log/httpd/access.log"
+    - "/var/log/httpd/error.log"
+    - "/var/log/apache2/access.log"
+    - "/var/log/apache2/error.log"
+    - "/var/log/httpd-access.log"
+    - "/var/log/httpd-error.log"
+  document_type: webserver
+  fields:
+    service: apache
+  fields_under_root: true
+{% endif %}
+
+{% if item.NGINX_FG %}
+- input_type: log
+  paths:
+    - "/var/log/nginx/error.log"
+    - "/var/log/nginx/access.log"
+  document_type: webserver
+  fields:
+    service: nginx
+  fields_under_root: true
+{% endif %}
+
+#================================ General =====================================
+
+# The name of the shipper that publishes the network data. It can be used to group
+# all the transactions sent by a single shipper in the web interface.
+# name: sshd
+
+#================================ Outputs =====================================
+
+
+{% if item.LS_VARS.flag %}
+#----------------------------- Logstash output --------------------------------
+output.logstash:
+  # The Logstash hosts
+  hosts: ["{{ item.LS_VARS.LS_HOST }}"]
+
+
+  {% if item.LS_VARS.LS_CA %}
+  # Optional SSL. By default is off.
+  # List of root certificates for HTTPS server verifications
+  ssl.certificate_authorities: ["{{ item.LS_VARS.LS_CA }}"]
+  {% endif %}
+
+  {% if item.LS_VARS.LS_CERT %}
+  # Certificate for SSL client authentication
+  ssl.certificate: "{{ item.LS_VARS.LS_CERT }}"
+  {% endif %}
+
+  {% if item.LS_VARS.LS_CLIENT_KEY %}
+  # Client Certificate Key
+  ssl.key: "{{ item.LS_VARS.LS_CLIENT_KEY }}"
+  {% endif %}
+{% endif %}
