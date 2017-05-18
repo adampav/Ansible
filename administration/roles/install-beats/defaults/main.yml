@@ -7,7 +7,7 @@ nginx: False
 beats_config:
   - beatname: "filebeat"
     config: "/etc/filebeat/filebeat.yml"
-    template: "custom-filebeat.yml.j2"
+    template: "attempt-production-filebeat.yml.j2"
     SSHD_FG: "{{ sshd }}"
     DOVECOT_FG: "{{ dovecot }}"
     APACHE_FG: "{{ apache }}"
@@ -31,8 +31,9 @@ beats_config:
 
     LS_VARS:
       flag: True
-      LS_HOST: "localhost"
+      LS_HOST: "local-repository-1.netmode.ece.ntua.gr"
       LS_PORT: "5044"
+      SSL_FLAG: False
       LS_CA: "/etc/pki/root/ca.pem"
       LS_CERT: "/etc/pki/client/cert.pem"
       LS_CLIENT_KEY: "/etc/pki/client/cert.key"

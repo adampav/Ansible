@@ -6,15 +6,17 @@
 
 - name: Install CA Certificates
   synchronize: src=/etc/pki/root/ dest="{{ /etc/pki/{{ LS_VAR.LS_PKI_DIR }}/root/ }}"
-  delegate_to: "{{ item.LS_VAR.LS_HOST }}"
+  delegate_to: "{{ item.LS_VARS.LS_HOST }}"
   with_items:
     - '{{ beats_config }}'
+  when: item.LS_VARS.SSL_FLAG == True
 
 - name: Install Client Certificates
   synchronize: src=/etc/pki/client/ dest="{{ /etc/pki/{{ LS_VAR.LS_PKI_DIR }}/client/ }}"
-  delegate_to: "{{ item.LS_VAR.LS_HOST }}"
+  delegate_to: "{{ item.LS_VARS.LS_HOST }}"
   with_items:
     - '{{ beats_config }}'
+  when: item.LS_VARS.SSL_FLAG == True
 
 - name: Enable and Start Filebeat Service (Systemd)
   systemd:
@@ -26,7 +28,7 @@
   when: ansible_service_mgr == "systemd"
 
 - name: Enable and Start Filebeat Service (Upstart)
-  serive:
+  service:
     enabled: yes
     state: started
     name: "{{ item.beatname }}"

@@ -1,7 +1,7 @@
 #=========================== Filebeat prospectors =============================
 
 filebeat.prospectors:
-{% if item.SSH_FG %}
+{% if item.SSHD_FG %}
 - input_type: log
   # Two filenames are specified to cover CentOS and Ubuntu flavored OSes
   paths:

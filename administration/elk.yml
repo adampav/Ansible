@@ -9,6 +9,7 @@
   gather_facts: False
   vars:
   roles:
+    - install-python
     - install-beats
   tasks:
 ...
