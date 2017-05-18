@@ -1,0 +1,6 @@
+---
+- name: Grab Facts
+  setup: gather_subset='all'
+
+- include: "{{ ansible_os_family }}.yml"
+...
