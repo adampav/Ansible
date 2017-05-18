@@ -2,7 +2,7 @@
 beats_config:
   - beatname: "filebeat"
     config: "/etc/filebeat/filebeat.yml"
-    template: "filebeat.yml.j2"
+    template: "custom-filebeat.yml.j2"
 
     PROSPECTORS:
     - input_type: "log"
