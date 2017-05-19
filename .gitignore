@@ -2,3 +2,9 @@
 *.swp
 *.retry
 .idea
+administration/roles/manage-network-configuration/defaults/main.yml
+administration/roles/manage-ssh-keys/defaults/main.yml
+administration/roles/manage-sshd-configuration/defaults/main.yml
+./administration/roles/manage-sshd-configuration/defaults/main.yml
+./administration/roles/manage-network-configuration/defaults/main.yml
+./administration/roles/manage-ssh-keys/defaults/main.yml
