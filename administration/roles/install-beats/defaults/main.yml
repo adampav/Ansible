@@ -3,11 +3,13 @@ sshd: True
 dovecot: False
 apache: False
 nginx: False
+base_config: "/etc/filebeat/filebeat.yml"
+base_template: "attempt-production-filebeat.yml.j2"
 
 beats_config:
   - beatname: "filebeat"
-    config: "/etc/filebeat/filebeat.yml"
-    template: "attempt-production-filebeat.yml.j2"
+    config: "{{ base_config }}"
+    template: "{{ base_template }}"
     SSHD_FG: "{{ sshd }}"
     DOVECOT_FG: "{{ dovecot }}"
     APACHE_FG: "{{ apache }}"
