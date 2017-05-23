@@ -3,7 +3,7 @@
   apt_key:
     url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
     state: present
-  when: "{{ INSTALL_FLAG }}"
+  when: INSTALL_FLAG == True
 
 - name: Add apt sources
   lineinfile:
@@ -15,14 +15,14 @@
     group: root
     mode: 0644
     create: True
-  when: "{{ INSTALL_FLAG }}"
+  when:  INSTALL_FLAG == True
 
 - name: Install Pre-Requisite
   apt:
 #   update_cache: yes
     name: apt-transport-https
     state: present
-  when: "{{ INSTALL_FLAG }}"
+  when: INSTALL_FLAG == True
 
 - name: Install Beats
   apt:
@@ -31,7 +31,7 @@
     state: present
   with_items:
     - '{{ beats_config }}'
-  when: "{{ INSTALL_FLAG }}"
+  when: INSTALL_FLAG == True
 
 - include: common.yml
 ...

@@ -3,7 +3,7 @@
   rpm_key:
     key: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
     state: present
-  when: "{{ INSTALL_FLAG }}"
+  when: INSTALL_FLAG == True
 
 - name: Add Elastic sources
   blockinfile:
@@ -22,7 +22,7 @@
       enabled=1
       autorefresh=1
       type=rpm-md
-  when: "{{ INSTALL_FLAG }}"
+  when: INSTALL_FLAG == True
 
 - name: Install Beats
   yum:
@@ -31,7 +31,7 @@
     state: present
   with_items:
     - '{{ beats_config }}'
-  when: "{{ INSTALL_FLAG }}"
+  when: INSTALL_FLAG == True
 
 - include: common.yml
 ...
