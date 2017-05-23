@@ -17,31 +17,31 @@ beats_config:
     APACHE_FG: "{{ apache }}"
     NGINX_FG: "{{ nginx }}"
 
-    PROSPECTORS:
-    - input_type: "log"
-      document_type: "auth.log"
-      multiline_fg: False
-      paths:
-      - "/var/log/auth.log"
-
-    - input_type: "log"
-      document_type: "onos_logs"
-      multiline_fg: True
-      multiline_pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
-      multiline_negate: "True"
-      multiline_match: "after"
-      paths:
-      - "/opt/onos/log/karaf.log"
+#    PROSPECTORS:
+#    - input_type: "log"
+#      document_type: "auth.log"
+#      multiline_fg: False
+#      paths:
+#      - "/var/log/auth.log"
+#
+#    - input_type: "log"
+#      document_type: "onos_logs"
+#      multiline_fg: True
+#      multiline_pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}"
+#      multiline_negate: "True"
+#      multiline_match: "after"
+#      paths:
+#      - "/opt/onos/log/karaf.log"
 
     LS_VARS:
       flag: True
       LS_HOST: "{{ LS_HOST }}"
       LS_PORT: "5044"
       SSL_FLAG: False
-      LS_CA: "/etc/pki/root/ca.pem"
-      LS_CERT: "/etc/pki/client/cert.pem"
-      LS_CLIENT_KEY: "/etc/pki/client/cert.key"
-      LS_PKI_DIR: "LS_shared"
+      LS_CA:
+      LS_CERT:
+      LS_CLIENT_KEY:
+      LS_PKI_DIR:
 
     ES_VARS:
       flag: False
