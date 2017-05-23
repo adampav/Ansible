@@ -5,6 +5,7 @@ apache: False
 nginx: False
 base_config: "/etc/filebeat/filebeat.yml"
 base_template: "attempt-production-filebeat.yml.j2"
+LS_HOST: ""
 
 beats_config:
   - beatname: "filebeat"
@@ -33,7 +34,7 @@ beats_config:
 
     LS_VARS:
       flag: True
-      LS_HOST: "local-repository-1.netmode.ece.ntua.gr"
+      LS_HOST: "{{ LS_HOST }}"
       LS_PORT: "5044"
       SSL_FLAG: False
       LS_CA: "/etc/pki/root/ca.pem"
