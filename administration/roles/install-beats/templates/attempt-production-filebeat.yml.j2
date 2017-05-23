@@ -62,7 +62,7 @@ filebeat.prospectors:
 #================================ Outputs =====================================
 
 
-{% if item.LS_VARS.flag and item.LS_VAR.LS_HOST %}
+{% if item.LS_VARS.flag and item.LS_VARS.LS_HOST %}
 #----------------------------- Logstash output --------------------------------
 output.logstash:
   # The Logstash hosts
