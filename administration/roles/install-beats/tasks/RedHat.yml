@@ -28,7 +28,7 @@
   yum:
     update_cache: yes
     name: "{{ item.beatname }}"
-    state: present
+    state: latest
   with_items:
     - '{{ beats_config }}'
   when: INSTALL_FLAG == True

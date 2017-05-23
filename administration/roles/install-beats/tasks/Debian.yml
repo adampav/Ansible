@@ -19,16 +19,16 @@
 
 - name: Install Pre-Requisite
   apt:
-#   update_cache: yes
+    update_cache: yes
     name: apt-transport-https
-    state: present
+    state: latest
   when: INSTALL_FLAG == True
 
 - name: Install Beats
   apt:
     update_cache: yes
     name: "{{ item.beatname }}"
-    state: present
+    state: latest
   with_items:
     - '{{ beats_config }}'
   when: INSTALL_FLAG == True
