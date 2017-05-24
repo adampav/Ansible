@@ -6,6 +6,7 @@ nginx: False
 base_config: "/etc/filebeat/filebeat.yml"
 base_template: "attempt-production-filebeat.yml.j2"
 INSTALL_FLAG: False
+UNINSTALL_FLAG: False
 LS_HOST: ""
 
 beats_config:

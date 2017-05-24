@@ -1,10 +1,6 @@
 ---
 privileged_host:
-  - addr: ""
+  - addr: "147.102.13.158"
     id: 1
-    state: "present"
-
-  - addr: ""
-    id: 2
     state: "present"
 ...

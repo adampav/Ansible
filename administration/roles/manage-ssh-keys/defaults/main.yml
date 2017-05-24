@@ -1,13 +1,15 @@
 ---
 # defaults vars file for manage-ssh-keys
+main_key_path: "/home/tchalla/.ssh/tt_id_rsa.pub"
 ssh_vars:
   - username: root
     state: present
     keys:
-      - ""
+      - "{{ main_key_path }}"
 
   - username: "{{ ansible_user | default('{{ ansible_user_id }}') }}"
     state: present
     keys:
-      - ""
+      - "{{ main_key_path }}"
+      - "/tmp/dpkey.pub"
 ...

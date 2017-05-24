@@ -3,4 +3,8 @@
   setup: gather_subset='all'
 
 - include: "{{ ansible_os_family }}.yml"
+  when: UNINSTALL_FLAG == False
+
+- include: "remove{{ ansible_os_family }}.yml"
+  when: UNINSTALL_FLAG == True
 ...

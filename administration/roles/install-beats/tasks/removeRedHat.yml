@@ -1,0 +1,20 @@
+---
+- name: Uninstall filebeat package
+  yum:
+    name: "{{ item.beatname }}"
+    state: absent
+  with_items:
+    - '{{ beats_config }}'
+  when: UNINSTALL_FLAG == True
+
+- name: Remove /etc/filebeat
+    path: /etc/filebeat
+    state: absent
+  when: UNINSTALL_FLAG == True
+
+
+- name: Remove /var/lib/filebeat
+    path: /var/lib/filebeat
+    state: absent
+  when: UNINSTALL_FLAG == True
+...
