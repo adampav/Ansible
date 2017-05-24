@@ -11,6 +11,6 @@
   roles:
     - install-python
     - manage-packages
-    - install-beats
+    - manage-beats
   tasks:
 ...
