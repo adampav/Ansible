@@ -1,6 +1,5 @@
 ---
 # defaults vars file for manage-ssh-keys
-main_key_path: "/home/tchalla/.ssh/tt_id_rsa.pub"
 ssh_vars:
   - username: root
     state: present
@@ -11,5 +10,4 @@ ssh_vars:
     state: present
     keys:
       - "{{ main_key_path }}"
-      - "/tmp/dpkey.pub"
 ...

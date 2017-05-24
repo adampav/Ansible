@@ -1,6 +1,6 @@
 ---
 privileged_host:
-  - addr: "147.102.13.158"
+  - addr: "{{ exempt_addr }}"
     id: 1
     state: "present"
 ...
