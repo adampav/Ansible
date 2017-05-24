@@ -1,34 +1,8 @@
 ---
-- name: Add GPG Repository Key
-  rpm_key:
-    key: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
-    state: present
-
-- name: Add Elastic sources
-  blockinfile:
-    path: /etc/yum.repos.d/elastic.repo
-    state: present
-    owner: root
-    group: root
-    mode: 0644
-    create: True
-    block: |
-      [elastic-5.x]
-      name=Elastic repository for 5.x packages
-      baseurl=https://artifacts.elastic.co/packages/5.x/yum
-      gpgcheck=1
-      gpgkey=https://artifacts.elastic.co/GPG-KEY-elasticsearch
-      enabled=1
-      autorefresh=1
-      type=rpm-md
-
-- name: Install Beats
+- name: Install the libselinux-python package
   yum:
-    update_cache: yes
-    name: "{{ item.beatname }}"
-    state: present
-  with_items:
-    - '{{ beats_config }}'
+    name: libselinux-python
+    state: latest
 
 - include: common.yml
 ...
