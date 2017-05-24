@@ -5,14 +5,15 @@ filebeat.prospectors:
 - input_type: log
   # Two filenames are specified to cover CentOS and Ubuntu flavored OSes
   paths:
-    - "/var/log/auth.log"
-    - "/var/log/auth.log.1"
+    - "/var/log/auth.log*"
     - "/var/log/secure"
+    - "/var/log/secure.*"
   document_type: auth
   fields:
     service: sshd
   fields_under_root: true
-  include_lines: ["Failed"]
+  include_lines: ["Failed", "Did not receive", "Invalid user", "Connection closed by"]
+  exclude_files: ['\.gz$']
 {% endif %}
 
 {% if item.DOVECOT_FG %}

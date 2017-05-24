@@ -19,7 +19,7 @@
 
 - name: Install Pre-Requisite
   apt:
-    update_cache: yes
+#    update_cache: yes
     name: apt-transport-https
     state: latest
   when: INSTALL_FLAG == True

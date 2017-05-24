@@ -1,4 +1,16 @@
 ---
+- name: Check if Filebeat Service Exists
+  stat: path=/etc/init.d/filebeat
+  register: service_status_filebeat
+
+- name: Stop Filebeat Service
+  service:
+    state: stopped
+    name: "{{ item.beatname }}"
+  when: service_status_filebeat.stat.exists
+  with_items:
+    - '{{ beats_config }}'
+
 - name: Uninstall filebeat package
   apt:
     name: "{{ item.beatname }}"
