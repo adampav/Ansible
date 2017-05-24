@@ -9,12 +9,14 @@
   when: UNINSTALL_FLAG == True
 
 - name: Remove /etc/filebeat
-    path: /etc/filebeat
+  file:
+    path: "/etc/filebeat"
     state: absent
   when: UNINSTALL_FLAG == True
 
 - name: Remove /var/lib/filebeat
-    path: /var/lib/filebeat
+  file:
+    path: "/var/lib/filebeat"
     state: absent
   when: UNINSTALL_FLAG == True
 ...
