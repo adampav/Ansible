@@ -1,6 +1,6 @@
 ---
 - name: Install python 2
-  raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal) || sudo yum install -y python
+  raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal) || yum install -y python
   register: script
   changed_when: script.rc == "changed"
 ...
