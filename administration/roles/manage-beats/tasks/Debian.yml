@@ -1,4 +1,10 @@
 ---
+- name: Install Pre-Requisite
+  apt:
+    name: apt-transport-https
+    state: latest
+  when: INSTALL_FLAG == True
+
 - name: Add GPG Repository Key
   apt_key:
     url: "https://artifacts.elastic.co/GPG-KEY-elasticsearch"
@@ -17,13 +23,6 @@
     create: True
   when:  INSTALL_FLAG == True
 
-- name: Install Pre-Requisite
-  apt:
-#    update_cache: yes
-    name: apt-transport-https
-    state: latest
-  when: INSTALL_FLAG == True
-
 - name: Install Beats
   apt:
     update_cache: yes
@@ -33,5 +32,6 @@
     - '{{ beats_config }}'
   when: INSTALL_FLAG == True
 
-- include: common.yml
+- name: Include common Tasks
+  include: common.yml
 ...
