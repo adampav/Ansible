@@ -1,0 +1,37 @@
+---
+- name: Install Pre-Requisite
+  apt:
+    name: apt-transport-https
+    state: latest
+  when: INSTALL_FLAG == True
+
+- name: Add GPG Repository Key for Saltstack
+  apt_key:
+    url: "https://repo.saltstack.com/apt/debian/8/amd64/latest/SALTSTACK-GPG-KEY.pub"
+    state: present
+  when: INSTALL_FLAG == True
+
+- name: Add apt sources
+  lineinfile:
+    dest: /etc/apt/sources.list.d/saltstack.list
+    regexp: "^deb http://repo.saltstack.com/apt/debian/8/amd64/latest jessie main"
+    line: "deb http://repo.saltstack.com/apt/debian/8/amd64/latest jessie main"
+    state: present
+    owner: root
+    group: root
+    mode: 0644
+    create: True
+  when:  INSTALL_FLAG == True
+
+- name: Install Saltstack
+  apt:
+    update_cache: yes
+    name: "{{ item.beatname }}"
+    state: latest
+  with_items:
+    - '{{ beats_config }}'
+  when: INSTALL_FLAG == True
+
+- name: Include common Tasks
+  include: common.yml
+...
