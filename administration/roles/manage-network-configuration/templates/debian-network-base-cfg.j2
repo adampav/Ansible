@@ -10,6 +10,7 @@ iface lo inet loopback
 {% for interface in interfaces %}
 {% if (interface.iface is defined and interface.iface != "") %}
 auto {{ interface.iface }}
+{% if (interface.ipv4 is defined and interface.ipv4 != "") %}
 iface {{ interface.iface }} inet static
     address {{ interface.ipv4 }}
     netmask {{ interface.netmask }}
@@ -20,6 +21,9 @@ iface {{ interface.iface }} inet static
 {% endif %}
 {% if interface.dns is defined %}
     dns-nameserver {{ interface.dns }}
+{% endif %}
+{% else %}
+iface {{ interface.iface }} inet dhcp
 {% endif %}
 {% endif %}
 
