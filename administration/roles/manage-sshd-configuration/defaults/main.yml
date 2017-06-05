@@ -1,10 +1,6 @@
 ---
 privileged_host:
-  - addr: ""
+  - addr: "{{ exempt_addr }}"
     id: 1
-    state: "present"
-
-  - addr: ""
-    id: 2
     state: "present"
 ...

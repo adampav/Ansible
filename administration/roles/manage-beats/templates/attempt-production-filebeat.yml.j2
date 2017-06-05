@@ -5,13 +5,15 @@ filebeat.prospectors:
 - input_type: log
   # Two filenames are specified to cover CentOS and Ubuntu flavored OSes
   paths:
-    - "/var/log/auth.log"
+    - "/var/log/auth.log*"
     - "/var/log/secure"
+    - "/var/log/secure.*"
   document_type: auth
   fields:
     service: sshd
   fields_under_root: true
-  include_lines: ["Failed"]
+  include_lines: ["Failed", "Did not receive", "Invalid user", "Connection closed by"]
+  exclude_files: ['\.gz$']
 {% endif %}
 
 {% if item.DOVECOT_FG %}
@@ -62,24 +64,20 @@ filebeat.prospectors:
 #================================ Outputs =====================================
 
 
-{% if item.LS_VARS.flag %}
+{% if item.LS_VARS.flag and item.LS_VARS.LS_HOST %}
 #----------------------------- Logstash output --------------------------------
 output.logstash:
   # The Logstash hosts
   hosts: ["{{ item.LS_VARS.LS_HOST }}"]
-
-
   {% if item.LS_VARS.LS_CA %}
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications
   ssl.certificate_authorities: ["{{ item.LS_VARS.LS_CA }}"]
   {% endif %}
-
   {% if item.LS_VARS.LS_CERT %}
   # Certificate for SSL client authentication
   ssl.certificate: "{{ item.LS_VARS.LS_CERT }}"
   {% endif %}
-
   {% if item.LS_VARS.LS_CLIENT_KEY %}
   # Client Certificate Key
   ssl.key: "{{ item.LS_VARS.LS_CLIENT_KEY }}"

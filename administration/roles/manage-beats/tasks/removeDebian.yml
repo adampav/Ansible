@@ -1,0 +1,34 @@
+---
+- name: Check if Filebeat Service Exists
+  stat: path=/etc/init.d/filebeat
+  register: service_status_filebeat
+
+- name: Stop Filebeat Service
+  service:
+    state: stopped
+    name: "{{ item.beatname }}"
+  when: service_status_filebeat.stat.exists
+  with_items:
+    - '{{ beats_config }}'
+
+- name: Uninstall filebeat package
+  apt:
+    name: "{{ item.beatname }}"
+    state: absent
+    purge: yes
+  with_items:
+    - '{{ beats_config }}'
+  when: UNINSTALL_FLAG == True
+
+- name: Remove /etc/filebeat
+  file:
+    path: "/etc/filebeat"
+    state: absent
+  when: UNINSTALL_FLAG == True
+
+- name: Remove /var/lib/filebeat
+  file:
+    path: "/var/lib/filebeat"
+    state: absent
+  when: UNINSTALL_FLAG == True
+...

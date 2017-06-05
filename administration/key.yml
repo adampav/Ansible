@@ -9,8 +9,6 @@
   gather_facts: False
   vars:
   roles:
-    - install-python
-    - manage-packages
-    - manage-sshd-configuration
+    - manage-ssh-keys
   tasks:
 ...

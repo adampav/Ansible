@@ -1,0 +1,12 @@
+TYPE="Ethernet"
+BOOTPROTO="static"
+IPADDR="{{ primary_ip }}"
+NETMASK="{{ primary_netmask }}"
+GATEWAY="{{ primary_gateway }}"
+DNS1="{{ primary_dns1 }}"
+DNS2="{{ primary_dns2 }}"
+NM_CONTROLLED=no
+NAME="{{ primary_interface }}"
+DEVICE="{{ primary_interface }}"
+ONBOOT="yes"
+UUID="{{ iface_uuid.stdout_lines.0 }}"

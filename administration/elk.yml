@@ -10,6 +10,7 @@
   vars:
   roles:
     - install-python
-    - install-beats
+    - manage-packages
+    - manage-beats
   tasks:
 ...

@@ -4,10 +4,10 @@ ssh_vars:
   - username: root
     state: present
     keys:
-      - ""
+      - "{{ main_key_path }}"
 
   - username: "{{ ansible_user | default('{{ ansible_user_id }}') }}"
     state: present
     keys:
-      - ""
+      - "{{ main_key_path }}"
 ...

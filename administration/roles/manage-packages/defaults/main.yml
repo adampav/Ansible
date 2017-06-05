@@ -1,1 +1,3 @@
-# template file - main.yml
+---
+UPGRADE_DIST_FLAG: False
+...

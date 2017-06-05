@@ -1,0 +1,11 @@
+---
+- name: Grab active interface
+  setup: gather_subset='network'
+
+- name: Install python 2
+  raw: uuidgen "{{ primary_interface }}"
+  register: iface_uuid
+
+- name: Create Base Configuration
+  template: src="{{ redhat_template }}" dest="{{ redhat_config }}" force=yes backup=yes owner=root group=root mode=0644
+...

@@ -1,7 +1,0 @@
----
-- name: Grab active interface
-  setup: gather_subset='network'
-
-- name: Create Base Configuration
-  template: src="{{ template }}" dest="{{ config }}" force=yes backup=yes owner=root group=root mode=0644
-...

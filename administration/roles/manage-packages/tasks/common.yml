@@ -1,37 +1,37 @@
 # template file - main.yml
 ---
-- name: Create Base Configuration for Filebeat
-  template: src="{{ item.template }}" dest="{{ item.config }}" force=yes backup=yes owner=root group=root mode=0644
-  with_items:
-    - '{{ beats_config }}'
-
-- name: Install CA Certificates
-  synchronize: src=/etc/pki/root/ dest="{{ /etc/pki/{{ LS_VAR.LS_PKI_DIR }}/root/ }}"
-  delegate_to: "{{ item.LS_VAR.LS_HOST }}"
-  with_items:
-    - '{{ beats_config }}'
-
-- name: Install Client Certificates
-  synchronize: src=/etc/pki/client/ dest="{{ /etc/pki/{{ LS_VAR.LS_PKI_DIR }}/client/ }}"
-  delegate_to: "{{ item.LS_VAR.LS_HOST }}"
-  with_items:
-    - '{{ beats_config }}'
-
-- name: Enable and Start Filebeat Service (Systemd)
-  systemd:
-    daemon_reload: yes
-    state: started
-    name: "{{ item.beatname }}"
-  with_items:
-    - '{{ beats_config }}'
-  when: ansible_service_mgr == "systemd"
-
-- name: Enable and Start Filebeat Service (Upstart)
-  serive:
-    enabled: yes
-    state: started
-    name: "{{ item.beatname }}"
-  with_items:
-    - '{{ beats_config }}'
-  when: ansible_service_mgr == "upstart"
+#- name: Create Base Configuration for Filebeat
+#  template: src="{{ item.template }}" dest="{{ item.config }}" force=yes backup=yes owner=root group=root mode=0644
+#  with_items:
+#    - '{{ beats_config }}'
+#
+#- name: Install CA Certificates
+#  synchronize: src=/etc/pki/root/ dest="{{ /etc/pki/{{ LS_VAR.LS_PKI_DIR }}/root/ }}"
+#  delegate_to: "{{ item.LS_VAR.LS_HOST }}"
+#  with_items:
+#    - '{{ beats_config }}'
+#
+#- name: Install Client Certificates
+#  synchronize: src=/etc/pki/client/ dest="{{ /etc/pki/{{ LS_VAR.LS_PKI_DIR }}/client/ }}"
+#  delegate_to: "{{ item.LS_VAR.LS_HOST }}"
+#  with_items:
+#    - '{{ beats_config }}'
+#
+#- name: Enable and Start Filebeat Service (Systemd)
+#  systemd:
+#    daemon_reload: yes
+#    state: started
+#    name: "{{ item.beatname }}"
+#  with_items:
+#    - '{{ beats_config }}'
+#  when: ansible_service_mgr == "systemd"
+#
+#- name: Enable and Start Filebeat Service (Upstart)
+#  serive:
+#    enabled: yes
+#    state: started
+#    name: "{{ item.beatname }}"
+#  with_items:
+#    - '{{ beats_config }}'
+#  when: ansible_service_mgr == "upstart"
 ...
