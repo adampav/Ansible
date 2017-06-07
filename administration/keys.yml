@@ -6,11 +6,10 @@
 
 - hosts: all
   become: true
-  gather_facts: false
+  gather_facts: False
   vars:
   roles:
     - install-python
     - manage-ssh-keys
-    - manage-sshd-configuration
   tasks:
 ...
