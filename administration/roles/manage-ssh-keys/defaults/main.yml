@@ -1,13 +1,14 @@
 ---
 # defaults vars file for manage-ssh-keys
+state: present
 ssh_vars:
   - username: root
-    state: present
+    state: "{{ state }}"
     keys:
       - "{{ main_key_path }}"
 
   - username: "{{ ansible_user | default('{{ ansible_user_id }}') }}"
-    state: present
+    state: "{{ state }}"
     keys:
       - "{{ main_key_path }}"
 ...
