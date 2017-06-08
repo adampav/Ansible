@@ -1,8 +1,8 @@
 ---
 iface: "{{ ansible_default_ipv4.interface }}"
 
-rules_v4_template: "base_rules.v4.j2"
-rules_v6_template: "base_rules.v6.j2"
+rules_v4_template: "base_secure_rules.v4.j2"
+rules_v6_template: "base_secure_rules.v6.j2"
 
 rules_v4_dest: "/etc/iptables/rules.v4"
 rules_v6_dest: "/etc/iptables/rules.v6"
@@ -16,9 +16,28 @@ trusted_subnets_list:
 trusted_hosts_list:
   - "{{ trusted_host }}"
 
-public_services: 22
+public_services:
+
+restricted_services:
+  - port: 22
+    protocol: tcp
+    iface: "{{ iface }}"
+    sources:
+      - "83.212.121.12"
+      - "83.212.100.68"
+      - "83.212.96.122"
+      - "83.212.102.222"
+      - "83.212.105.172"
+
+  - port: 123
+    protocol: udp
+    iface: "{{ iface }}"
+    sources:
+      - "83.212.121.12"
+      - "83.212.100.68"
+      - "83.212.96.122"
+      - "83.212.102.222"
+      - "83.212.105.172"
+
 subnet_services:
-host_services:
-  - 8080
-  - 53
 ...

@@ -24,6 +24,22 @@
 -A INPUT -i {{ iface }} -p tcp -m conntrack --ctstate ESTABLISHED -m tcp --sport 80 -j ACCEPT
 -A INPUT -i {{ iface }} -p tcp -m conntrack --ctstate ESTABLISHED -m tcp --sport 443 -j ACCEPT
 
+# CUSTOM public Services
+{% if public_services %}
+{% for item in public_services %}
+-A INPUT -i {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate NEW,ESTABLISHED -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT
+-A OUTPUT -o {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate ESTABLISHED -m {{ item.protocol }} --sport {{ item.port }} -j ACCEPT
+{% endfor %}
+{% endif %}
+
+# CUSTOM restricted Services
+{% for item in restricted_services %}
+{% for source in item.sources %}
+-A INPUT -s {{ source }} -i {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate NEW,ESTABLISHED -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT
+{% endfor %}
+-A OUTPUT -o {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate ESTABLISHED -m {{ item.protocol }} --sport {{ item.port }} -j ACCEPT
+{% endfor %}
+
 # REJECT THE REST
 -A INPUT -m limit --limit 3/min -j LOG --log-prefix "iptables_INPUT_denied: "
 -A INPUT -j DROP
