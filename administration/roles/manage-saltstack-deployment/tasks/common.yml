@@ -1,11 +1,11 @@
 ---
 - name: Configure Salt-Master
-  template: src="{{ SALT_MASTER_CONFIG }}" dest="{{ /etc/salt/master }}" force=yes backup=yes owner=root group=root mode=0644
+  template: src="{{ SALT_MASTER_CONFIG }}" dest="/etc/salt/master" force=yes backup=yes owner=root group=root mode=0644
   when: SALT_MASTER_FLAG == True
   notify: "master-restart"
 
 - name: Configure Salt-Minion
-  template: src="{{ SALT_MINION_CONFIG }}" dest="{{ /etc/salt/minion }}" force=yes backup=yes owner=root group=root mode=0644
+  template: src="{{ SALT_MINION_CONFIG }}" dest="/etc/salt/minion" force=yes backup=yes owner=root group=root mode=0644
   when: SALT_MINION_FLAG == True
   notify: "minion-restart"
 ...

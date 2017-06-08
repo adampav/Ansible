@@ -4,6 +4,9 @@ INSTALL_FLAG: False
 SALT_MINION_FLAG: True
 SALT_MASTER_FLAG: False
 CONFIGURE_FLAG: True
+SALT_MINION_CONFIG: "salt-minion.j2"
+SALT_MASTER_CONFIG: "rules.v4.j2"
+SALT_MASTER: "localhost"
 
 salt_packages:
   - name: salt-minion
