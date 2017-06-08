@@ -1,0 +1,50 @@
+# Completed by Ansible {{ ansible_date_time.date }}
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT DROP [0:0]
+:LOGGING_INPUT - [0:0]
+:LOGGING_OUTPUT - [0:0]
+-A INPUT -i lo -j ACCEPT
+-A OUTPUT -o lo -j ACCEPT
+
+-A INPUT -i {{ iface }} -p tcp -m conntrack --ctstate ESTABLISHED -m tcp -j ACCEPT
+
+# Allow SSH
+-A INPUT -i {{ iface }} -p tcp -m conntrack --ctstate NEW,ESTABLISHED -m tcp --dport 22 -j ACCEPT
+-A OUTPUT -o {{ iface }} -p tcp -m conntrack --ctstate ESTABLISHED -m tcp --sport 22 -j ACCEPT
+
+# Allow DNS
+-A OUTPUT -o {{ iface }} -p udp -m conntrack --ctstate NEW,ESTABLISHED -m udp --dport 53 -j ACCEPT
+-A OUTPUT -o {{ iface }} -p tcp -m conntrack --ctstate NEW,ESTABLISHED -m tcp --dport 53 -j ACCEPT
+-A INPUT -i {{ iface }} -p udp -m conntrack --ctstate ESTABLISHED -m udp --sport 53 -j ACCEPT
+-A INPUT -i {{ iface }} -p tcp -m conntrack --ctstate ESTABLISHED -m tcp --sport 53 -j ACCEPT
+
+# Allow HTTP/S
+-A OUTPUT -o {{ iface }} -p tcp -m conntrack --ctstate NEW,ESTABLISHED -m tcp --dport 80 -j ACCEPT
+-A OUTPUT -o {{ iface }} -p tcp -m conntrack --ctstate NEW,ESTABLISHED -m tcp --dport 443 -j ACCEPT
+-A INPUT -i {{ iface }} -p tcp -m conntrack --ctstate ESTABLISHED -m tcp --sport 80 -j ACCEPT
+-A INPUT -i {{ iface }} -p tcp -m conntrack --ctstate ESTABLISHED -m tcp --sport 443 -j ACCEPT
+
+# LOG THE REST (outgoing only)
+-A OUTPUT -o {{ iface }} -m conntrack --ctstate NEW,ESTABLISHED -j LOGGING_OUTPUT
+-A INPUT -i {{ iface }} -m conntrack --ctstate ESTABLISHED -j LOGGING_INPUT
+
+-A LOGGING_INPUT -j LOG --log-prefix "iptables_INPUT_ALLOWED: "
+-A LOGGING_INPUT -j ACCEPT
+
+-A LOGGING_OUTPUT -j LOG --log-prefix "iptables_OUTPUT_ALLOWED: "
+-A LOGGING_OUTPUT -j ACCEPT
+
+# REJECT THE REST
+-A INPUT -m limit --limit 3/min -j LOG --log-prefix "iptables_INPUT_denied: "
+-A INPUT -j DROP
+
+-A FORWARD -m limit --limit 3/min -j LOG --log-prefix "iptables_FORWARD_denied: "
+-A FORWARD -j DROP
+
+-A OUTPUT -m limit --limit 3/min -j LOG --log-prefix "iptables_OUTPUT_denied: "
+-A OUTPUT -j DROP
+
+COMMIT
+# Completed by Ansible {{ ansible_date_time.date }}
