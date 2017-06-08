@@ -26,12 +26,13 @@
 - name: Install Saltstack
   apt:
     update_cache: yes
-    name: "{{ item.beatname }}"
-    state: latest
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
   with_items:
-    - '{{ beats_config }}'
+    - '{{ salt_packages }}'
   when: INSTALL_FLAG == True
 
 - name: Include common Tasks
   include: common.yml
+  when: CONFIGURE_FLAG == True
 ...

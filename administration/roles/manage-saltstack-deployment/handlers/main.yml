@@ -1,1 +1,31 @@
-# template file - main.yml
+---
+- name: Restart ssh Debian Based
+  service: name=ssh state=reloaded
+  listen: "restart ssh"
+  when: (ansible_os_family == "Debian") or  (ansible_os_family == "Ubuntu")
+
+- name: Restart ssh CentOS Based
+  service: name=sshd state=restarted
+  listen: "restart ssh"
+  when: ansible_distribution == "CentOS"
+
+- name: Restart ssh BSD Based
+  service: name=ssh state=reloaded
+  listen: "restart ssh"
+  when: ansible_distribution == "FreeBSD"
+
+- name: Restart ssh Debian Based
+  service: name=ssh state=reloaded
+  listen: "restart ssh"
+  when: (ansible_os_family == "Debian") or  (ansible_os_family == "Ubuntu")
+
+- name: Restart ssh CentOS Based
+  service: name=sshd state=restarted
+  listen: "restart ssh"
+  when: ansible_distribution == "CentOS"
+
+- name: Restart ssh BSD Based
+  service: name=ssh state=reloaded
+  listen: "restart ssh"
+  when: ansible_distribution == "FreeBSD"
+...

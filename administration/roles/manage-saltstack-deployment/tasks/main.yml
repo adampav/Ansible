@@ -4,9 +4,8 @@
 
 - name: Include "{{ ansible_os_family }}" Tasks -> INSTALL
   include: "{{ ansible_os_family }}.yml"
-  when: UNINSTALL_FLAG == False
 
-- name: Include "{{ ansible_os_family }}" Tasks -> UNINSTALL
-  include: "remove{{ ansible_os_family }}.yml"
-  when: UNINSTALL_FLAG == True
+#- name: Include "{{ ansible_os_family }}" Tasks -> UNINSTALL
+#  include: "remove{{ ansible_os_family }}.yml"
+#  when: UNINSTALL_FLAG == True
 ...

@@ -1,1 +1,14 @@
 # template file - main.yml
+---
+INSTALL_FLAG: False
+SALT_MINION_FLAG: True
+SALT_MASTER_FLAG: False
+CONFIGURE_FLAG: True
+
+salt_packages:
+  - name: salt-minion
+    state: latest
+
+  - name: salt-master
+    state: latest
+...
