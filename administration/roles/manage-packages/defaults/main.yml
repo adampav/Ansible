@@ -1,3 +1,11 @@
 ---
 UPGRADE_DIST_FLAG: False
+UPDATE_REPO : True
+
+base_packages:
+  - name: iptables
+    state: latest
+
+  - name: iptables-persistent
+    state: latest
 ...

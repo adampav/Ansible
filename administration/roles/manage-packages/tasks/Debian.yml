@@ -5,5 +5,25 @@
     upgrade: dist
   when: UPGRADE_DIST_FLAG == True
 
+- name: Update Packages from Repos
+  apt:
+    update_cache: yes
+  when: UPDATE_REPO == True
+
+- name: Install base packages
+  apt:
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+  with_items:
+    - '{{ base_packages }}'
+
+- name: Install extra packages
+  apt:
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+  with_items:
+    - '{{ extra_packages }}'
+  when: extra_packages is defined
+
 - include: common.yml
 ...
