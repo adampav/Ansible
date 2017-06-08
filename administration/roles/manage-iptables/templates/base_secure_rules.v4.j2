@@ -1,10 +1,8 @@
-# Completed by Ansible {{ ansible_date_time.date }}
+# Completed by Ansible {{ ansible_date_time.date }} {{ ansible_date_time.time }}
 *filter
 :INPUT DROP [0:0]
 :FORWARD DROP [0:0]
 :OUTPUT DROP [0:0]
-:LOGGING_INPUT - [0:0]
-:LOGGING_OUTPUT - [0:0]
 -A INPUT -i lo -j ACCEPT
 -A OUTPUT -o lo -j ACCEPT
 
@@ -37,4 +35,4 @@
 -A OUTPUT -j DROP
 
 COMMIT
-# Completed by Ansible {{ ansible_date_time.date }}
+# Completed by Ansible {{ ansible_date_time.date }} {{ ansible_date_time.time }}

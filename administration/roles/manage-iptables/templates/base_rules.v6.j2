@@ -1,4 +1,4 @@
-# Completed by Ansible {{ ansible_date_time.date }}
+# Completed by Ansible {{ ansible_date_time.date }} {{ ansible_date_time.time }}
 *filter
 :INPUT DROP [0:0]
 :FORWARD DROP [0:0]
@@ -11,4 +11,4 @@ COMMIT
 -A INPUT -i {{ iface }} -p udp -m conntrack --ctstate ESTABLISHED -m udp --sport 53 -j ACCEPT
 -A INPUT -i {{ iface }} -p tcp -m conntrack --ctstate ESTABLISHED -m tcp --sport 53 -j ACCEPT
 COMMIT
-# Completed by Ansible {{ ansible_date_time.date }}
+# Completed by Ansible {{ ansible_date_time.date }} {{ ansible_date_time.time }}
