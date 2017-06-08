@@ -7,7 +7,19 @@ base_config: "/etc/filebeat/filebeat.yml"
 base_template: "attempt-production-filebeat.yml.j2"
 INSTALL_FLAG: False
 UNINSTALL_FLAG: False
+
+LS_FLAG: True
 LS_HOST: ""
+LS_PORT: "5044"
+SSL_FLAG: False
+LS_CA:
+LS_CERT:
+LS_CLIENT_KEY:
+LS_PKI_DIR:
+
+ES_FLAG: False
+ES_HOST: "localhost"
+ES_PORT: "9200"
 
 beats_config:
   - beatname: "filebeat"
@@ -34,18 +46,4 @@ beats_config:
 #      paths:
 #      - "/opt/onos/log/karaf.log"
 
-    LS_VARS:
-      flag: True
-      LS_HOST: "{{ LS_HOST }}"
-      LS_PORT: "5044"
-      SSL_FLAG: False
-      LS_CA:
-      LS_CERT:
-      LS_CLIENT_KEY:
-      LS_PKI_DIR:
-
-    ES_VARS:
-      flag: False
-      ES_HOST: "localhost"
-      ES_PORT: "9200"
 ...

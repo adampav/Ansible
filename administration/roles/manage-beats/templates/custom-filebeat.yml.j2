@@ -68,11 +68,11 @@ filebeat.prospectors:
 #  env: staging
 
 #================================ Outputs =====================================
-{% if item.ES_VARS.flag %}
+{% if ES_FLAG %}
 #-------------------------- Elasticsearch output ------------------------------
 output.elasticsearch:
   # Array of hosts to connect to.
-  hosts: ["{{ item.ES_VARS.ES_HOST }}"]
+  hosts: ["{{ ES_HOST }}"]
 
   # Optional protocol and basic auth credentials.
   #protocol: "https"
@@ -80,21 +80,21 @@ output.elasticsearch:
   #password: "changeme"
 {% endif %}
 
-{% if item.LS_VARS.flag %}
+{% if LS_FLAG %}
 #----------------------------- Logstash output --------------------------------
 output.logstash:
   # The Logstash hosts
-  hosts: ["{{ item.LS_VARS.LS_HOST }}"]
+  hosts: ["{{ LS_HOST }}"]
 
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications
-  ssl.certificate_authorities: ["{{ item.LS_VARS.LS_CA }}"]
+  ssl.certificate_authorities: ["{{ LS_CA }}"]
 
   # Certificate for SSL client authentication
-  ssl.certificate: "{{ item.LS_VARS.LS_CERT }}"
+  ssl.certificate: "{{ LS_CERT }}"
 
   # Client Certificate Key
-  ssl.key: "{{ item.LS_VARS.LS_CLIENT_KEY }}"
+  ssl.key: "{{ LS_CLIENT_KEY }}"
 {% endif %}
 
 #================================ Logging =====================================
