@@ -9,14 +9,14 @@
   delegate_to: "{{ item.LS_VARS.LS_HOST }}"
   with_items:
     - '{{ beats_config }}'
-  when: item.LS_VARS.SSL_FLAG == True
+  when: LS_SSL_FLAG == True
 
 - name: Install Client Certificates
   synchronize: src=/etc/pki/client/ dest="{{ /etc/pki/{{ LS_VAR.LS_PKI_DIR }}/client/ }}"
   delegate_to: "{{ item.LS_VARS.LS_HOST }}"
   with_items:
     - '{{ beats_config }}'
-  when: item.LS_VARS.SSL_FLAG == True
+  when: LS_SSL_FLAG == True
 
 - name: Enable and Start Filebeat Service (Systemd)
   systemd:
