@@ -68,7 +68,7 @@ filebeat.prospectors:
 #----------------------------- Logstash output --------------------------------
 output.logstash:
   # The Logstash hosts
-  hosts: ["{{ LS_HOST }}":"{{ LS_PORT }}"]
+  hosts: ["{{ LS_HOST }}:{{ LS_PORT }}"]
   {% if LS_CA %}
   # Optional SSL. By default is off.
   # List of root certificates for HTTPS server verifications
