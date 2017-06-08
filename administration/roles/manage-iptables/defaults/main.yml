@@ -1,12 +1,20 @@
 ---
+iface: "{{ ansible_default_ipv4.interface }}"
+
+rules_v4_template: "base_secure_rules.v4.j2"
+rules_v6_template: "base_secure_rules.v6.j2"
+
+rules_v4_dest: "/etc/iptables/rules.v4"
+rules_v6_dest: "/etc/iptables/rules.v6"
+
 trusted_subnet:
 trusted_host:
 
 trusted_subnets_list:
-	- "{{ trusted_subnet }}"
+  - "{{ trusted_subnet }}"
 
 trusted_hosts_list:
-	- "{{ trusted_host }}"
+  - "{{ trusted_host }}"
 
 public_services: 22
 subnet_services:

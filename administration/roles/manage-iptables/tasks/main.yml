@@ -1,1 +1,21 @@
-# template file - main.yml
+---
+# Gather Facts
+- name: Grab Facts
+  setup: gather_subset='network'
+
+# Make Sure iptables-persistent is installed
+- name: Install iptables-persistent
+  apt:
+    update_cache: yes
+    name: iptables-persistent
+    state: latest
+
+# Load the Templates
+- name: Load IPv4 iptables rules
+  template: src="{{ rules_v4_template }}" dest="{{ rules_v4_dest }}" force=yes backup=yes owner=root group=root mode=0644
+
+- name: Load IPv6 iptables rules
+  template: src="{{ rules_v6_template }}" dest="{{ rules_v6_dest }}" force=yes backup=yes owner=root group=root mode=0644
+
+# iptables-restore
+...
