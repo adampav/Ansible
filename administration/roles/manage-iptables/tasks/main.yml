@@ -17,6 +17,4 @@
 - name: Load IPv6 iptables rules
   template: src="{{ rules_v6_template }}" dest="{{ rules_v6_dest }}" force=yes backup=yes owner=root group=root mode=0644
   notify: "ip6tables-restore"
-
-# iptables-restore
 ...
