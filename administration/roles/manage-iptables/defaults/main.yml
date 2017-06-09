@@ -1,6 +1,8 @@
 ---
 iface: "{{ ansible_default_ipv4.interface }}"
 
+RELOAD_FLAG: False
+
 rules_v4_template: "base_secure_rules.v4.j2"
 rules_v6_template: "base_secure_rules.v6.j2"
 

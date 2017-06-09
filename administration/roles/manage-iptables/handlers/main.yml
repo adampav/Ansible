@@ -1,1 +1,12 @@
 # template file - main.yml
+---
+- name: NUKE IT IPv4 Tables LOAD
+  shell: iptables-restore < {{ rules_v4_dest }}
+  listen: "iptables-restore"
+  when: RELOAD_FLAG == True
+
+- name: NUKE IT IPv6 Tables LOAD
+  shell: ip6tables-restore < {{ rules_v6_dest }}
+  listen: "ip6tables-restore"
+  when: RELOAD_FLAG == True
+...
