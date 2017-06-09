@@ -42,6 +42,7 @@
 # CUSTOM restricted Services
 {% if restricted_services %}
 {% for item in restricted_services %}
+# ALLOW IN - {{ item.service }}
 {% for source in item.sources %}
 -A INPUT -s {{ source }} -i {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate NEW,ESTABLISHED -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT
 {% endfor %}
