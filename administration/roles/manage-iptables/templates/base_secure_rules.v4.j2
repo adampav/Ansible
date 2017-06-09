@@ -50,6 +50,18 @@
 {% endfor %}
 {% endif %}
 
+{% if ALLOW_OUT %}
+# LOG THE REST (outgoing only)
+-A OUTPUT -o {{ iface }} -m conntrack --ctstate NEW,ESTABLISHED -j LOGGING_OUTPUT
+-A INPUT -i {{ iface }} -m conntrack --ctstate ESTABLISHED -j LOGGING_INPUT
+
+-A LOGGING_INPUT -j LOG --log-prefix "iptables_INPUT_ALLOWED: "
+-A LOGGING_INPUT -j ACCEPT
+
+-A LOGGING_OUTPUT -j LOG --log-prefix "iptables_OUTPUT_ALLOWED: "
+-A LOGGING_OUTPUT -j ACCEPT
+{% endif %}
+
 # REJECT THE REST
 -A INPUT -m limit --limit 3/min -j LOG --log-prefix "iptables_INPUT_denied: "
 -A INPUT -j DROP

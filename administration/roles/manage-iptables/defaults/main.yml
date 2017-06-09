@@ -32,6 +32,17 @@ public_services:
     direction: "out"
 
 restricted_services:
+  - port: 333333
+    service: ""
+    protocol: tcp
+    iface: "{{ iface }}"
+    sources:
+      - "83.212.121.12"
+      - "83.212.100.68"
+      - "83.212.96.122"
+      - "83.212.102.222"
+      - "83.212.105.172"
+
   - port: 22
     service: "ssh"
     protocol: tcp
