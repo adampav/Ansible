@@ -3,6 +3,10 @@
 :INPUT DROP [0:0]
 :FORWARD DROP [0:0]
 :OUTPUT DROP [0:0]
+{% if ALLOW_OUT %}
+:LOGGING_INPUT - [0:0]
+:LOGGING_OUTPUT - [0:0]
+{% endif %}
 -A INPUT -i lo -j ACCEPT
 -A OUTPUT -o lo -j ACCEPT
 
