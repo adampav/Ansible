@@ -17,9 +17,21 @@ trusted_hosts_list:
   - "{{ trusted_host }}"
 
 public_services:
+  - port: 4505
+    service: "salt"
+    protocol: tcp
+    iface: "{{ iface }}"
+    direction: "out"
+
+  - port: 4506
+    service: "salt"
+    protocol: tcp
+    iface: "{{ iface }}"
+    direction: "out"
 
 restricted_services:
   - port: 22
+    service: "ssh"
     protocol: tcp
     iface: "{{ iface }}"
     sources:
@@ -30,6 +42,7 @@ restricted_services:
       - "83.212.105.172"
 
   - port: 123
+    service: "ntp"
     protocol: udp
     iface: "{{ iface }}"
     sources:
