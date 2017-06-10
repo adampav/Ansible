@@ -1,6 +1,7 @@
 ---
 iface: "{{ ansible_default_ipv4.interface }}"
 
+ALLOW_OUT: False
 RELOAD_FLAG: False
 
 rules_v4_template: "base_secure_rules.v4.j2"
@@ -31,39 +32,45 @@ public_services:
     iface: "{{ iface }}"
     direction: "out"
 
+  - port: 5044
+    service: "logstash"
+    protocol: tcp
+    iface: "{{ iface }}"
+    direction: "out"
+
 restricted_services:
-  - port: 333333
-    service: ""
-    protocol: tcp
-    iface: "{{ iface }}"
-    sources:
-      - "83.212.121.12"
-      - "83.212.100.68"
-      - "83.212.96.122"
-      - "83.212.102.222"
-      - "83.212.105.172"
-
-  - port: 22
-    service: "ssh"
-    protocol: tcp
-    iface: "{{ iface }}"
-    sources:
-      - "83.212.121.12"
-      - "83.212.100.68"
-      - "83.212.96.122"
-      - "83.212.102.222"
-      - "83.212.105.172"
-
-  - port: 123
-    service: "ntp"
-    protocol: udp
-    iface: "{{ iface }}"
-    sources:
-      - "83.212.121.12"
-      - "83.212.100.68"
-      - "83.212.96.122"
-      - "83.212.102.222"
-      - "83.212.105.172"
+#  - port: 333333
+#    service: ""
+#    protocol: tcp
+#    iface: "{{ iface }}"
+#    sources:
+#      - "83.212.121.12"
+#      - "83.212.100.68"
+#      - "83.212.96.122"
+#      - "83.212.102.222"
+#      - "83.212.105.172"
+#
+#  - port: 22
+#    service: "ssh"
+#    protocol: tcp
+#    iface: "{{ iface }}"
+#    sources:
+#      - "83.212.121.12"
+#      - "83.212.100.68"
+#      - "83.212.96.122"
+#      - "83.212.102.222"
+#      - "83.212.105.172"
+#
+#  - port: 123
+#    service: "ntp"
+#    protocol: udp
+#    iface: "{{ iface }}"
+#    sources:
+#      - "83.212.121.12"
+#      - "83.212.100.68"
+#      - "83.212.96.122"
+#      - "83.212.102.222"
+#      - "83.212.105.172"
 
 subnet_services:
 ...
