@@ -1,6 +1,6 @@
 ---
 - name: Restart salt-master Debian Based
-  service: name=salt-master state=reloaded
+  service: name=salt-master state=restarted
   listen: "master-restart"
   when: (ansible_os_family == "Debian") or  (ansible_os_family == "Ubuntu")
 
@@ -15,7 +15,7 @@
   when: ansible_distribution == "FreeBSD"
 
 - name: Restart salt-minion Debian Based
-  service: name=salt-minion state=reloaded
+  service: name=salt-minion state=restarted
   listen: "minion-restart"
   when: (ansible_os_family == "Debian") or  (ansible_os_family == "Ubuntu")
 
