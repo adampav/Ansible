@@ -1,6 +1,7 @@
 ---
 - name: Create Base Configuration for Filebeat
   template: src="{{ item.template }}" dest="{{ item.config }}" force=yes backup=yes owner=root group=root mode=0644
+  notify: "restart {{ item.name }}"
   with_items:
     - '{{ beats_config }}'
 
