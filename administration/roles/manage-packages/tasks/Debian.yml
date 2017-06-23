@@ -22,7 +22,7 @@
     state: "{{ item.state }}"
   with_items:
     - '{{ extra_packages }}'
-  when: extra_packages is defined
+  when: extra_packages is defined and extra_packages != ""
 
 - include: common.yml
 ...
