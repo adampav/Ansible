@@ -87,7 +87,6 @@ def main():
         else:
             main_key_path = None
             while not main_key_path or not Path(os.path.expanduser(main_key_path)).is_file():
-                main_key_path = input("Enter a file path for main_key: >> ")
 
     print(main_key_path)
     for ip_arg in ip_args:
@@ -98,11 +97,24 @@ def main():
                 break
         else:
             print("\nNo default value for \"%s\". Please enter one!\n" % ip_arg)
+            ip_arg = None
+            while not ip_arg:
+                try:
+                    ip_arg = ipaddress.ip_address(input("Enter a file path for main_key: >> "))
+                except ValueError:
+                    print("Bad IP address!")
+                    ip_addr = None
+            # TODO check about variable mutable cod
+            vm_vars[ip_arg] = def_vars[ip_arg]
 
+
+    # TODO
     priv_args = []
 
+
+
     extra_pack = []
-    # main_key_path,
+    # main_key_path,3no
     # exempt addresses
 
     # network stuff
