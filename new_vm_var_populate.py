@@ -179,7 +179,34 @@ def read_pub_key():
 
 
 def main():
-    # Variables for Packages (base_packages, extra_packages, UPGRADE_DIST_FLAG)
+    # TODO ASK WHICH ROLES WILL BE RUN
+
+    # TODO LOAD FROM FILE
+    roles = ["manage-beats", "manage-fail2ban", "manage-hostnames", "manage-iptables", "manage-network-configuration",
+             "manage-packages", "manage-saltstack-deployment", "manage-ssh-keys", "manage-ssh-known_hosts",
+             "manage-sshd-configuration"]
+    # A) Create TEMP Playbook based on those roles, ask for name
+    # Run it
+
+    # TODO ASK WHICH PLAYBOOK WILL BE RUN -> DERIVE ROLES
+
+    # TODO LOAD FROM FILE
+    playbooks = ["beats", "firewall", "keys", "lockdown", "maintain", "init-config", "pythonize", "salt"]
+    # B) Select from Already Existing Playbook
+
+    # TODO LOAD FROM FILE
+    playbook_roles = {
+        "beats": ["manage-beats"],
+        "firewall": ["manage-iptables"],
+        "keys": ["manage-ssh-keys"],
+        "lockdown": ["manage-ssh-keys", "manage-sshd-configuration"],
+        "maintain": ["manage-packages"],
+        "init-config": ["manage-packages", "manage-ssh-keys",
+                        "manage-network-configuration", "manage-sshd-configuation"],
+        "salt": ["manage-saltstack-deployment"],
+    }
+    # TODO Either After A) or B) FOR EACH ROLE ATTEMPT TO LOAD VARS, VALIDATE, OVERWRITE VARS
+
 
     # json.loads default values
     try:
