@@ -131,7 +131,7 @@ def main():
             print("\nDefault Value for \"%s\" is:\t %s\n" % (ip_arg, def_vars[ip_arg]))
             if query_yes_no("Keep the default value?"):
                 vm_vars[ip_arg] = def_vars[ip_arg]
-                break
+                continue
         else:
             print("\nNo default value for \"%s\"." % ip_arg)
             ip_addr = None
@@ -148,10 +148,14 @@ def main():
     # TODO
     priv_args = []
     if "privileged_host" in def_vars:
+
+        for elem in def_vars["privileged_host"]:
+            pass
+            # TODO create 2 classes for priv_host + extra_vars
+
+
+
         priv_args = def_vars["privileged_host"]
-
-        # TODO CHECK THE PRIV_HOSTS
-
         # TODO ASK IF YOU WANT MORE
         for elem in read_priviliged_hosts(priv_len=len(priv_args)):
             priv_args.append(elem)
