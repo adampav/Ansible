@@ -37,7 +37,7 @@ class HostExemption:
                 return False
 
         if kwargs["state"] != "present" and kwargs["state"] != "absent":
-            print(json.dumps(acceptable["state"], indent=4))
+            print("\nValue not acceptable!\n"+json.dumps(acceptable["state"], indent=4))
             if raise_f:
                 raise ValueError("Invalid state value. Select one from the list.")
             else:
@@ -57,34 +57,23 @@ class HostExemption:
     def read_priviliged_hosts(priv_len=1):
         func_priv_args = []
         while True:
-            priv_dict = dict()
-            ip_addr = None
-            read_host = ""
-            while not ip_addr:
-                read_host = input("Enter an IP Address for Privileged Host : >> ")
-                try:
-                    ip_addr = ipaddress.ip_address(read_host)
-                except ValueError:
-                    if read_host == "":
-                        break
-                    print("Bad IP address!")
-
-            if not read_host:
-                break
-
-            read_state = query_yes_no("Host Present?")
-
-            priv_dict["addr"] = str(ip_addr)
-            priv_dict["id"] = priv_len
-
-            if read_state:
+            priv_dict = {
+                "addr": input("Enter an IP Address for Privileged Host, Empty to Stop : >> "),
+                "id": priv_len,
+                "state": query_yes_no("State: Present?")
+            }
+            if priv_dict["state"]:
                 priv_dict["state"] = "present"
             else:
                 priv_dict["state"] = "absent"
 
-            priv_len += 1
+            if not priv_dict["addr"]:
+                break
 
-            func_priv_args.append(priv_dict)
+            if HostExemption.validate(raise_f=False, **priv_dict):
+                func_priv_args.append(priv_dict)
+
+            priv_len += 1
 
         return func_priv_args
 
@@ -98,7 +87,7 @@ class ExtraPackages:
         needed_args = ["name", "state"]
         acceptable = {
             "state": ["absent", "present", "latest"],
-            "name": ["vim", "git", "nmap", "tcpdump", "iptables", "iptables-persistent", "ufw"]
+            "name": ["vim", "git", "nmap", "tcpdump", "iptables", "iptables-persistent", "ufw", "netstat"]
         }
 
         for arg in needed_args:
@@ -109,14 +98,14 @@ class ExtraPackages:
                     return False
 
         if kwargs["name"] not in acceptable["name"]:
-            print(json.dumps(acceptable["name"], indent=4))
+            print("\nValue not acceptable!\n"+json.dumps(acceptable["name"], indent=4))
             if raise_f:
                 raise ValueError("Invalid Package Name. Select one from the list.")
             else:
                 return False
 
         if kwargs["state"] not in acceptable["state"]:
-            print(json.dumps(acceptable["state"], indent=4))
+            print("\nValue not acceptable!\n"+json.dumps(acceptable["state"], indent=4))
             if raise_f:
                 raise ValueError("Invalid state value. Select one from the list.")
             else:
@@ -126,7 +115,19 @@ class ExtraPackages:
 
     @staticmethod
     def read_extra_packages():
-        return []
+        func_extra_packages = []
+        while True:
+            package_dict = {
+                "name": input("Enter Package Name, Empty to Stop : >> "),
+                "state": input("Enter the state of the package, Empty = Present : >> ") or "present"
+            }
+
+            if not package_dict["name"]:
+                break
+
+            if ExtraPackages.validate(raise_f=False, **package_dict):
+                func_extra_packages.append(package_dict)
+        return func_extra_packages
 
 
 def query_yes_no(question, default="yes"):
@@ -234,47 +235,48 @@ def main():
             vm_vars[ip_arg] = str(ip_addr)
 
     # TODO
-    priv_args = []
     if "privileged_host" in def_vars:
         # VALIDATE Already Present vars
-        def_vars["privileged_host"] = [elem for elem in def_vars["privileged_host"]
-                                       if HostExemption.validate(raise_f=False, **elem)]
-
         priv_args = [elem for elem in def_vars["privileged_host"]
-                     if query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
+                     if HostExemption.validate(raise_f=False, **elem)
+                     and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
 
+        print("\nAll Hosts:\n"+json.dumps(def_vars["privileged_host"]))
         if query_yes_no("Do you want to insert more?"):
-            print("\nNo privileged host. Please enter IPs. Or enter empty string to stop\n")
-            for elem in HostExemption.read_priviliged_hosts(priv_len=len(priv_args)):
+            print("\nPlease enter IPs. Or enter empty string to stop\n")
+            for elem in HostExemption.read_priviliged_hosts(priv_len=len(priv_args)+1):
                 priv_args.append(elem)
 
+            print("\nAll Hosts:\n" + json.dumps(priv_args))
+
     else:
+        priv_args = []
         print("\nNo privileged host. Please enter IPs. Or enter empty string to stop\n")
         for elem in HostExemption.read_priviliged_hosts():
             priv_args.append(elem)
 
     vm_vars["privileged_host"] = priv_args
 
-    # TODO
-    extra_pack = []
-
     if "extra_packages" in def_vars:
         # VALIDATE Already Present vars
-        def_vars["extra_packages"] = [elem for elem in def_vars["extra_packages"]
-                                      if ExtraPackages.validate(raise_f=False, **elem)]
+        extra_pack = [elem for elem in def_vars["extra_packages"]
+                      if ExtraPackages.validate(raise_f=False, **elem)
+                      and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
 
-        priv_args = [elem for elem in def_vars["extra_packages"]
-                     if query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
+        print("\nAll packages:\n"+json.dumps(def_vars["extra_packages"]))
 
         if query_yes_no("Do you want to insert more?"):
-            print("\nEnter \n")
+            print("\nEnter Packages.\n")
             for elem in ExtraPackages.read_extra_packages():
-                priv_args.append(elem)
+                extra_pack.append(elem)
+
+        print("\nAll packages:\n"+json.dumps(def_vars["extra_packages"]))
 
     else:
-        print("\nNo privileged host. Please enter IPs. Or enter empty string to stop\n")
+        extra_pack = []
+        print("\nNo packages. Please enter package name. Or enter empty string to stop\n")
         for elem in ExtraPackages.read_extra_packages():
-            priv_args.append(elem)
+            extra_pack.append(elem)
 
     vm_vars["extra_packages"] = extra_pack
 
