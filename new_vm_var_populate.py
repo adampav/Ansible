@@ -7,7 +7,9 @@ import ipaddress
 from pathlib import Path
 
 DEFAULTS_PATH = 'new_vm_defaults.json'
-
+ROLES = 'roles.json'
+PLAYBOOKS = 'playbooks.json'
+PLAYBOOK_ROLES = 'playbook_roles.json'
 ip_args = ["primary_ip", "primary_netmask", "primary_network",
            "primary_broadcast", "primary_dns1", "primary_dns2", "gateway"]
 
@@ -178,33 +180,96 @@ def read_pub_key():
     return main_key_path
 
 
+def select_roles():
+    try:
+        with open(ROLES, 'r') as f:
+            roles = json.load(f)
+        print("\nAvailable Roles are:\n"+json.dumps(roles, indent=4))
+
+        chosen_roles = []
+
+        while True:
+            i = 0
+            for role in roles:
+                print('{0} -> {1}'.format(i, role))
+
+            choice = input("\nSelet one from the choices above using the number.\n")
+
+            if not choice:
+                break
+            elif choice not in range(0, len(roles)):
+                print("\nInvalid Choice\n")
+                continue
+            else:
+                chosen_roles.append(choice)
+        return roles
+    except IOError:
+        print("No Roles specified. Exiting")
+        return None
+
+
+def select_playbook():
+    try:
+        with open(PLAYBOOKS, 'r') as f:
+            playbooks = json.load(f)
+        # print("\nAvailable Roles are:\n"+json.dumps(playbooks, indent=4))
+    except:
+        print("No Playbooks specified. Exiting")
+        return None
+
+    while True:
+        i = 0
+        for playbook in playbooks:
+            print('{0} -> {1}'.format(i, playbook))
+            i += 1
+
+        choice = input("\nSelet one from the choices above using the number.\n")
+
+        if choice and int(choice) in range(0, len(playbooks)):
+            break
+        else:
+            print("\nInvalid Choice\n")
+
+    chosen_playbook = playbooks[int(choice)]
+    print(chosen_playbook)
+
+    try:
+        with open(PLAYBOOK_ROLES, 'r') as f:
+            playbook_roles = json.load(f)
+        print("\nAvailable Roles are:\n" + json.dumps(playbook_roles, indent=4))
+    except:
+        print("No Roles Configured specified.")
+        return None
+
+    if chosen_playbook not in playbook_roles:
+        return None
+
+    return playbook_roles[chosen_playbook]
+
+
+def read_role_vars():
+    pass
+
+
 def main():
     # TODO ASK WHICH ROLES WILL BE RUN
+    # Case 1 -> Playbooks available
 
-    # TODO LOAD FROM FILE
-    roles = ["manage-beats", "manage-fail2ban", "manage-hostnames", "manage-iptables", "manage-network-configuration",
-             "manage-packages", "manage-saltstack-deployment", "manage-ssh-keys", "manage-ssh-known_hosts",
-             "manage-sshd-configuration"]
-    # A) Create TEMP Playbook based on those roles, ask for name
-    # Run it
+    roles = None
+    if query_yes_no("Select a playbook?"):
+        roles = select_playbook()
 
-    # TODO ASK WHICH PLAYBOOK WILL BE RUN -> DERIVE ROLES
+    if not roles and not query_yes_no("Select Roles?"):
+        print("No valid Options. Exiting")
+        return 0
+    else:
+        roles = select_roles()
 
-    # TODO LOAD FROM FILE
-    playbooks = ["beats", "firewall", "keys", "lockdown", "maintain", "init-config", "pythonize", "salt"]
-    # B) Select from Already Existing Playbook
+    # Case 1a yes
+    # Case 1b no
 
-    # TODO LOAD FROM FILE
-    playbook_roles = {
-        "beats": ["manage-beats"],
-        "firewall": ["manage-iptables"],
-        "keys": ["manage-ssh-keys"],
-        "lockdown": ["manage-ssh-keys", "manage-sshd-configuration"],
-        "maintain": ["manage-packages"],
-        "init-config": ["manage-packages", "manage-ssh-keys",
-                        "manage-network-configuration", "manage-sshd-configuation"],
-        "salt": ["manage-saltstack-deployment"],
-    }
+    # Case 2 -> Playbooks available
+
     # TODO Either After A) or B) FOR EACH ROLE ATTEMPT TO LOAD VARS, VALIDATE, OVERWRITE VARS
 
 
