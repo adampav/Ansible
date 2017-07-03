@@ -1,0 +1,27 @@
+{
+  "beats": [
+    "manage-beats"
+  ],
+  "firewall": [
+    "manage-iptables"
+  ],
+  "keys": [
+    "manage-ssh-keys"
+  ],
+  "lockdown": [
+    "manage-ssh-keys",
+    "manage-sshd-configuration"
+  ],
+  "maintain": [
+    "manage-packages"
+  ],
+  "init-config": [
+    "manage-packages",
+    "manage-ssh-keys",
+    "manage-network-configuration",
+    "manage-sshd-configuation"
+  ],
+  "salt": [
+    "manage-saltstack-deployment"
+  ]
+}
