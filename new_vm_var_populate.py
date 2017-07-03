@@ -183,7 +183,7 @@ def read_pub_key():
 def select_roles():
     try:
         with open(ROLES, 'r') as f:
-            roles = json.load(f)
+            roles = list(json.load(f))
         print("\nAvailable Roles are:\n"+json.dumps(roles, indent=4))
 
         chosen_roles = []
@@ -192,17 +192,23 @@ def select_roles():
             i = 0
             for role in roles:
                 print('{0} -> {1}'.format(i, role))
+                i += 1
 
-            choice = input("\nSelet one from the choices above using the number.\n")
+            choice = input("\nSelet one from the choices above using the number.\nEmpty to stop.\n")
 
             if not choice:
-                break
-            elif choice not in range(0, len(roles)):
+                if chosen_roles:
+                    break
+            elif int(choice) not in range(0, len(roles)):
                 print("\nInvalid Choice\n")
                 continue
             else:
-                chosen_roles.append(choice)
-        return roles
+                chosen_roles.append(roles[int(choice)])
+                roles.remove(roles[int(choice)])
+
+        print(json.dumps(list(set(chosen_roles)), indent=4))
+
+        return list(set(chosen_roles))
     except IOError:
         print("No Roles specified. Exiting")
         return None
@@ -236,7 +242,7 @@ def select_playbook():
     try:
         with open(PLAYBOOK_ROLES, 'r') as f:
             playbook_roles = json.load(f)
-        print("\nAvailable Roles are:\n" + json.dumps(playbook_roles, indent=4))
+        print("\nAvailable Roles are:\n" + json.dumps(playbook_roles[chosen_playbook], indent=4))
     except:
         print("No Roles Configured specified.")
         return None
@@ -247,8 +253,33 @@ def select_playbook():
     return playbook_roles[chosen_playbook]
 
 
-def read_role_vars():
+def generate_temporary_playbook():
     pass
+
+
+def read_role_vars(role=None):
+    if role == "manage-beats":
+        pass
+    elif role == "manage-fail2ban":
+        pass
+    elif role == "manage-hostnames":
+        pass
+    elif role == "manage-iptables":
+        pass
+    elif role == "manage-network-configuration":
+        pass
+    elif role == "manage-packages":
+        pass
+    elif role == "manage-saltstack-deployment":
+        pass
+    elif role == "manage-ssh-keys":
+        pass
+    elif role == "manage-ssh-known_hosts":
+        pass
+    elif role == "manage-sshd-configuration":
+        pass
+    else:
+        return {}
 
 
 def main():
@@ -256,14 +287,20 @@ def main():
     # Case 1 -> Playbooks available
 
     roles = None
+    playbook = None
     if query_yes_no("Select a playbook?"):
         roles = select_playbook()
 
     if not roles and not query_yes_no("Select Roles?"):
         print("No valid Options. Exiting")
         return 0
-    else:
+
+    if not roles:
         roles = select_roles()
+
+    vars = {}
+    for role in roles:
+        vars.update(read_role_vars())
 
     # Case 1a yes
     # Case 1b no
