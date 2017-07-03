@@ -20,57 +20,21 @@ trusted_hosts_list:
   - "{{ trusted_host }}"
 
 public_services:
-  - port: 4505
-    service: "salt"
-    protocol: tcp
-    iface: "{{ iface }}"
-    direction: "out"
-
-  - port: 4506
-    service: "salt"
-    protocol: tcp
-    iface: "{{ iface }}"
-    direction: "out"
-
-  - port: 5044
-    service: "logstash"
-    protocol: tcp
-    iface: "{{ iface }}"
-    direction: "out"
+#  - port: 123
+#    service: "ntp"
+#    protocol: udp
+#    iface: "{{ iface }}"
+#    direction: "in"
 
 restricted_services:
-#  - port: 333333
-#    service: ""
-#    protocol: tcp
-#    iface: "{{ iface }}"
-#    sources:
-#      - "83.212.121.12"
-#      - "83.212.100.68"
-#      - "83.212.96.122"
-#      - "83.212.102.222"
-#      - "83.212.105.172"
-#
 #  - port: 22
 #    service: "ssh"
 #    protocol: tcp
 #    iface: "{{ iface }}"
 #    sources:
-#      - "83.212.121.12"
-#      - "83.212.100.68"
-#      - "83.212.96.122"
-#      - "83.212.102.222"
-#      - "83.212.105.172"
-#
-#  - port: 123
-#    service: "ntp"
-#    protocol: udp
-#    iface: "{{ iface }}"
-#    sources:
-#      - "83.212.121.12"
-#      - "83.212.100.68"
-#      - "83.212.96.122"
-#      - "83.212.102.222"
-#      - "83.212.105.172"
+#      - "sourceA"
+#      - "sourceB"
+#      - "sourceC"
 
 subnet_services:
 ...
