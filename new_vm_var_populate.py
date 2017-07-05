@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
 import json
+import yaml
 import os
 import sys
 import ipaddress
 from pathlib import Path
 
 DEFAULTS_PATH = 'new_vm_defaults.json'
+ROLE_PATH = 'administration/roles'
 ROLES = 'roles.json'
 PLAYBOOKS = 'playbooks.json'
 PLAYBOOK_ROLES = 'playbook_roles.json'
@@ -236,6 +238,8 @@ def select_playbook():
         else:
             print("\nInvalid Choice\n")
 
+    # TODO FOR PLAYBOOK READ ROLES
+
     chosen_playbook = playbooks[int(choice)]
     print(chosen_playbook)
 
@@ -258,28 +262,49 @@ def generate_temporary_playbook():
 
 
 def read_role_vars(role=None):
+    try:
+        with open(ROLE_PATH + "/{0}/defaults/main.yml".format(role)) as f:
+            stuff = yaml.load(f)
+        print(json.dumps(stuff, indent=4))
+    except IOError:
+        print("Default vars not found for role {0} at /{0}/defaults/main.yml".format(role))
+        stuff = dict()
+
     if role == "manage-beats":
-        pass
+        # TODO read important stuff for beats
+        print(role)
     elif role == "manage-fail2ban":
-        pass
+        # TODO read important stuff for fail2ban
+        print(role)
     elif role == "manage-hostnames":
-        pass
+        # TODO read important stuff for hostname
+        print(role)
     elif role == "manage-iptables":
-        pass
+        # TODO read important stuff for iptables
+        print(role)
     elif role == "manage-network-configuration":
-        pass
+        # TODO read important stuff for network configuration
+        print(role)
     elif role == "manage-packages":
-        pass
+        # TODO read important stuff for packages
+        print(role)
     elif role == "manage-saltstack-deployment":
-        pass
+        # TODO read important stuff for saltstack
+        print(role)
     elif role == "manage-ssh-keys":
-        pass
+        # TODO read important stuff for ssh_keys
+        print(role)
     elif role == "manage-ssh-known_hosts":
+        # TODO read important stuff for known_hosts
+        print(role)
         pass
     elif role == "manage-sshd-configuration":
-        pass
+        # TODO read important stuff for sshd-configuration
+        print(role)
     else:
         return {}
+
+    return stuff
 
 
 def main():
@@ -300,7 +325,10 @@ def main():
 
     vars = {}
     for role in roles:
-        vars.update(read_role_vars())
+        # read_role_vars(role=role)
+        vars.update(read_role_vars(role=role))
+
+    print(json.dumps(vars, indent=4))
 
     # TODO Either After A) or B) FOR EACH ROLE ATTEMPT TO LOAD VARS, VALIDATE, OVERWRITE VARS
 

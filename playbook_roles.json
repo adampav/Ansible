@@ -19,7 +19,7 @@
     "manage-packages",
     "manage-ssh-keys",
     "manage-network-configuration",
-    "manage-sshd-configuation"
+    "manage-sshd-configuration"
   ],
   "salt": [
     "manage-saltstack-deployment"
