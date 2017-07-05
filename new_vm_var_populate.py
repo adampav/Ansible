@@ -302,13 +302,7 @@ def main():
     for role in roles:
         vars.update(read_role_vars())
 
-    # Case 1a yes
-    # Case 1b no
-
-    # Case 2 -> Playbooks available
-
     # TODO Either After A) or B) FOR EACH ROLE ATTEMPT TO LOAD VARS, VALIDATE, OVERWRITE VARS
-
 
     # json.loads default values
     try:
