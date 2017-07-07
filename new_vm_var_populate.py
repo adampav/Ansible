@@ -9,6 +9,7 @@ from pathlib import Path
 
 DEFAULTS_PATH = 'new_vm_defaults.json'
 ROLE_PATH = 'administration/roles'
+CUSTOM_ROLE_VARS = 'ansible-files/roles_var'
 PLAYBOOK_PATH = 'administration'
 ROLES = 'roles.json'
 PLAYBOOKS = 'playbooks.json'
@@ -183,6 +184,84 @@ def read_pub_key():
     return main_key_path
 
 
+def read_beats():
+    pass
+
+
+def read_fail2ban():
+    pass
+
+
+def read_iptables():
+    pass
+
+
+def read_hostnames():
+    pass
+
+
+def read_network_configuration(def_vars):
+    read_dict = dict()
+    # Validate IP Settings
+    for ip_arg in ip_args:
+        if ip_arg in def_vars:
+            print("\nDefault Value for \"%s\" is:\t %s\n" % (ip_arg, def_vars[ip_arg]))
+            if query_yes_no("Keep the default value?"):
+                read_dict[ip_arg] = def_vars[ip_arg]
+                continue
+        else:
+            print("\nNo default value for \"%s\"." % ip_arg)
+            ip_addr = None
+
+            while not ip_addr:
+                try:
+                    ip_addr = ipaddress.ip_address(input("Enter an IP Address for %s : >> " % ip_arg))
+                except ValueError:
+                    print("Bad IP address!")
+
+            # TODO check about variable mutable cod
+            read_dict[ip_arg] = str(ip_addr)
+
+
+def read_packages():
+    read_dict = dict()
+    read_dict["UPGRADE_DIST_FLAG"] = query_yes_no("Do you want to update/upgrade the system?")
+
+    # TODO READ PACKAGES
+
+    # TODO READ EXTRA PACKAGES
+
+    return read_dict
+
+
+def read_saltstack():
+    pass
+
+
+def read_ssh_keys(def_vars):
+    read_dict = dict()
+    # Validate Key Path
+    if "main_key_path" not in def_vars or not Path(os.path.expanduser(def_vars["main_key_path"])).is_file():
+        print("default \"main_key_path\" points to an invalid file or does not exist. Ignoring\n")
+
+        main_key_path = read_pub_key()
+
+    else:
+        print("Default value for \"main_key_path\" points to %s.\n" % def_vars["main_key_path"])
+        if query_yes_no("Keep the default value?"):
+            main_key_path = def_vars["main_key_path"]
+        else:
+            main_key_path = read_pub_key()
+
+    print(main_key_path)
+    read_dict["main_key_path"] = main_key_path
+    return read_dict
+
+
+def read_sshd_configuration():
+    pass
+
+
 def select_roles():
     try:
         with open(ROLES, 'r') as f:
@@ -263,37 +342,45 @@ def generate_temporary_playbook():
 
 def read_role_vars(role=None):
     try:
-        with open(ROLE_PATH + "/{0}/defaults/main.yml".format(role)) as f:
+        with open(CUSTOM_ROLE_VARS + "/{0}/my_vars.yml".format(role)) as f:
             stuff = yaml.load(f)
         print(json.dumps(stuff, indent=4))
     except IOError:
-        print("Default vars not found for role {0} at /{0}/defaults/main.yml".format(role))
+        print("File: "+CUSTOM_ROLE_VARS + "/{0}/my_vars.yml not found.".format(role).format(role))
         stuff = dict()
 
     if role == "manage-beats":
         # TODO read important stuff for beats
         print(role)
+        return read_beats(stuff)
     elif role == "manage-fail2ban":
         # TODO read important stuff for fail2ban
         print(role)
+        return read_fail2ban(stuff)
     elif role == "manage-hostnames":
         # TODO read important stuff for hostname
         print(role)
+        return read_hostnames(stuff)
     elif role == "manage-iptables":
         # TODO read important stuff for iptables
         print(role)
+        return read_iptables(stuff)
     elif role == "manage-network-configuration":
         # TODO read important stuff for network configuration
         print(role)
+        return read_network_configuration(stuff)
     elif role == "manage-packages":
         # TODO read important stuff for packages
         print(role)
+        return read_packages(stuff)
     elif role == "manage-saltstack-deployment":
         # TODO read important stuff for saltstack
         print(role)
+        return read_saltstack(stuff)
     elif role == "manage-ssh-keys":
         # TODO read important stuff for ssh_keys
         print(role)
+        return read_ssh_keys(stuff)
     elif role == "manage-ssh-known_hosts":
         # TODO read important stuff for known_hosts
         print(role)
@@ -301,6 +388,7 @@ def read_role_vars(role=None):
     elif role == "manage-sshd-configuration":
         # TODO read important stuff for sshd-configuration
         print(role)
+        return read_sshd_configuration(stuff)
     else:
         return {}
 
@@ -323,7 +411,7 @@ def main():
     if not roles:
         roles = select_roles()
 
-    vars = {}
+    vm_vars = {}
     for role in roles:
         # read_role_vars(role=role)
         vars.update(read_role_vars(role=role))
@@ -332,58 +420,19 @@ def main():
 
     # TODO Either After A) or B) FOR EACH ROLE ATTEMPT TO LOAD VARS, VALIDATE, OVERWRITE VARS
 
-    # json.loads default values
-    try:
-        with open(os.path.expanduser(DEFAULTS_PATH), 'r') as f:
-            def_vars = json.load(f)
-    except IOError:
-        print("Skipping loaded variables, No such FILE: %s" % DEFAULTS_PATH)
-        print("You have to provide all variables")
-        def_vars = dict()
-
-    print(json.dumps(def_vars, indent=4))
+    # try:
+    #     with open(os.path.expanduser(DEFAULTS_PATH), 'r') as f:
+    #         def_vars = json.load(f)
+    # except IOError:
+    #     print("Skipping loaded variables, No such FILE: %s" % DEFAULTS_PATH)
+    #     print("You have to provide all variables")
+    #     def_vars = dict()
+    #
+    # print(json.dumps(def_vars, indent=4))
 
     # Validate Upgrade Dist
     # "UPGRADE_DIST_FLAG"
     vm_vars = dict()
-
-    vm_vars["UPGRADE_DIST_FLAG"] = query_yes_no("Do you want to update/upgrade the system?")
-
-    # Validate Key Path
-    if "main_key_path" not in def_vars or not Path(os.path.expanduser(def_vars["main_key_path"])).is_file():
-        print("default \"main_key_path\" points to an invalid file or does not exist. Ignoring\n")
-
-        main_key_path = read_pub_key()
-
-    else:
-        print("Default value for \"main_key_path\" points to %s.\n" % def_vars["main_key_path"])
-        if query_yes_no("Keep the default value?"):
-            main_key_path = def_vars["main_key_path"]
-        else:
-            main_key_path = read_pub_key()
-
-    print(main_key_path)
-    vm_vars["main_key_path"] = main_key_path
-
-    # Validate IP Settings
-    for ip_arg in ip_args:
-        if ip_arg in def_vars:
-            print("\nDefault Value for \"%s\" is:\t %s\n" % (ip_arg, def_vars[ip_arg]))
-            if query_yes_no("Keep the default value?"):
-                vm_vars[ip_arg] = def_vars[ip_arg]
-                continue
-        else:
-            print("\nNo default value for \"%s\"." % ip_arg)
-            ip_addr = None
-
-            while not ip_addr:
-                try:
-                    ip_addr = ipaddress.ip_address(input("Enter an IP Address for %s : >> " % ip_arg))
-                except ValueError:
-                    print("Bad IP address!")
-
-            # TODO check about variable mutable cod
-            vm_vars[ip_arg] = str(ip_addr)
 
     # TODO
     if "privileged_host" in def_vars:
