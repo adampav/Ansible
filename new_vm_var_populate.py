@@ -251,7 +251,11 @@ def read_packages(def_vars):
         for elem in Packages.read_extra_packages():
             base_pack.append(elem)
 
-    read_dict["base_packages"] = base_pack
+    if base_pack:
+        read_dict["base_packages"] = base_pack
+    else:
+        if query_yes_no("Install NO base packages?"):
+            read_dict["base_packages"] = base_pack
 
     # READ EXTRA PACKAGES
     if "extra_packages" in def_vars:
@@ -274,6 +278,11 @@ def read_packages(def_vars):
         for elem in Packages.read_extra_packages():
             extra_pack.append(elem)
 
+    if extra_pack:
+        read_dict["extra_packages"] = extra_pack
+    else:
+        if query_yes_no("Install NO extra packages?"):
+            read_dict["extra_packages"] = extra_pack
     read_dict["extra_packages"] = extra_pack
 
     return read_dict
