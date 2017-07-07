@@ -412,56 +412,56 @@ def generate_temporary_playbook():
 def read_role_vars(role=None):
     try:
         with open(CUSTOM_ROLE_VARS + "/{0}/my_vars.yml".format(role)) as f:
-            stuff = yaml.load(f)
-        print(json.dumps(stuff, indent=4))
+            role_vars = yaml.load(f)
+        print(json.dumps(role_vars, indent=4))
     except IOError:
         print("File: "+CUSTOM_ROLE_VARS + "/{0}/my_vars.yml not found.".format(role).format(role))
-        stuff = dict()
+        role_vars = dict()
 
     if role == "manage-beats":
-        # TODO read important stuff for beats
+        # TODO read important role_vars for beats
         print(role)
-        return read_beats(stuff)
+        role_vars = read_beats(role_vars)
     elif role == "manage-fail2ban":
-        # TODO read important stuff for fail2ban
+        # TODO read important role_vars for fail2ban
         print(role)
-        return read_fail2ban(stuff)
+        role_vars = read_fail2ban(role_vars)
     elif role == "manage-hostnames":
-        # TODO read important stuff for hostname
+        # TODO read important role_vars for hostname
         print(role)
-        return read_hostnames(stuff)
+        role_vars = read_hostnames(role_vars)
     elif role == "manage-iptables":
-        # TODO read important stuff for iptables
+        # TODO read important role_vars for iptables
         print(role)
-        return read_iptables(stuff)
+        role_vars = read_iptables(role_vars)
     elif role == "manage-network-configuration":
-        # TODO read important stuff for network configuration
+        # TODO read important role_vars for network configuration
         print(role)
-        return read_network_configuration(stuff)
+        role_vars = read_network_configuration(role_vars)
     elif role == "manage-packages":
-        # TODO read important stuff for packages
+        # TODO read important role_vars for packages
         print(role)
-        return read_packages(stuff)
+        role_vars = read_packages(role_vars)
     elif role == "manage-saltstack-deployment":
-        # TODO read important stuff for saltstack
+        # TODO read important role_vars for saltstack
         print(role)
-        return read_saltstack(stuff)
+        role_vars = read_saltstack(role_vars)
     elif role == "manage-ssh-keys":
-        # TODO read important stuff for ssh_keys
+        # TODO read important role_vars for ssh_keys
         print(role)
-        return read_ssh_keys(stuff)
+        role_vars = read_ssh_keys(role_vars)
     elif role == "manage-ssh-known_hosts":
-        # TODO read important stuff for known_hosts
+        # TODO read important role_vars for known_hosts
         print(role)
-        pass
+        role_vars = {}
     elif role == "manage-sshd-configuration":
-        # TODO read important stuff for sshd-configuration
+        # TODO read important role_vars for sshd-configuration
         print(role)
-        return read_sshd_configuration(stuff)
+        role_vars = read_sshd_configuration(role_vars)
     else:
-        return {}
+        role_vars = {}
 
-    return stuff
+    return role_vars
 
 
 def main():
@@ -469,7 +469,6 @@ def main():
     # Case 1 -> Playbooks available
 
     roles = None
-    playbook = None
     if query_yes_no("Select a playbook?"):
         roles = select_playbook()
 
@@ -482,12 +481,7 @@ def main():
 
     vm_vars = {}
     for role in roles:
-        # read_role_vars(role=role)
         vm_vars.update(read_role_vars(role=role))
-
-    print(json.dumps(vm_vars, indent=4))
-
-    # TODO Either After A) or B) FOR EACH ROLE ATTEMPT TO LOAD VARS, VALIDATE, OVERWRITE VARS
 
     print(json.dumps(vm_vars, indent=4))
 
