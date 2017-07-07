@@ -415,7 +415,7 @@ def read_role_vars(role=None):
             role_vars = yaml.load(f)
         print(json.dumps(role_vars, indent=4))
     except IOError:
-        print("File: "+CUSTOM_ROLE_VARS + "/{0}/my_vars.yml not found.".format(role).format(role))
+        print("File: " + CUSTOM_ROLE_VARS + "/{0}/my_vars.yml not found.".format(role))
         role_vars = dict()
 
     if role == "manage-beats":
@@ -460,6 +460,14 @@ def read_role_vars(role=None):
         role_vars = read_sshd_configuration(role_vars)
     else:
         role_vars = {}
+
+    try:
+        with open(CUSTOM_ROLE_VARS + "/{0}/my_vars.yml".format(role)) as f:
+            yaml.dump(role_vars, f)
+        print("Printing to File: " + CUSTOM_ROLE_VARS + "/{0}/my_vars.yml".format(role)
+              + json.dumps(role_vars, indent=4))
+    except IOError:
+        print("Unknown shit happened.")
 
     return role_vars
 
