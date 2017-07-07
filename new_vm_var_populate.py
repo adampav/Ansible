@@ -419,6 +419,9 @@ def generate_temporary_playbook():
 
 
 def read_role_vars(role=None):
+    # TODO read defaults/main.yml
+
+    # update the role_vars dict with CUSTOM_ROLE_VARS
     try:
         with open(CUSTOM_ROLE_VARS + "/{0}/my_vars.yml".format(role)) as f:
             role_vars = yaml.load(f)
@@ -444,11 +447,9 @@ def read_role_vars(role=None):
         print(role)
         role_vars = read_iptables(role_vars)
     elif role == "manage-network-configuration":
-        # TODO read important role_vars for network configuration
         print(role)
         role_vars = read_network_configuration(role_vars)
     elif role == "manage-packages":
-        # TODO read important role_vars for packages
         print(role)
         role_vars = read_packages(role_vars)
     elif role == "manage-saltstack-deployment":
@@ -456,15 +457,12 @@ def read_role_vars(role=None):
         print(role)
         role_vars = read_saltstack(role_vars)
     elif role == "manage-ssh-keys":
-        # TODO read important role_vars for ssh_keys
         print(role)
         role_vars = read_ssh_keys(role_vars)
     elif role == "manage-ssh-known_hosts":
-        # TODO read important role_vars for known_hosts
         print(role)
         role_vars = {}
     elif role == "manage-sshd-configuration":
-        # TODO read important role_vars for sshd-configuration
         print(role)
         role_vars = read_sshd_configuration(role_vars)
     else:
