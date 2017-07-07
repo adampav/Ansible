@@ -84,16 +84,24 @@ class HostExemption:
         return func_priv_args
 
 
-class ExtraPackages:
+class Packages:
     def __init__(self, **kwargs):
-        validator = self.validate(**kwargs)
+        self.validated = self.validate(**kwargs)
 
     @staticmethod
     def validate(raise_f=True, **kwargs):
         needed_args = ["name", "state"]
         acceptable = {
-            "state": ["absent", "present", "latest"],
-            "name": ["vim", "git", "nmap", "tcpdump", "iptables", "iptables-persistent", "ufw", "netstat"]
+            "state": [
+                "absent",
+                "present",
+                "latest"
+            ],
+            "name": [
+                "vim", "nano", "git",
+                "nmap", "tcpdump", "iptables", "iptables-persistent", "ufw", "netstat",
+                "python", "python3"
+            ]
         }
 
         for arg in needed_args:
@@ -131,7 +139,7 @@ class ExtraPackages:
             if not package_dict["name"]:
                 break
 
-            if ExtraPackages.validate(raise_f=False, **package_dict):
+            if Packages.validate(raise_f=False, **package_dict):
                 func_extra_packages.append(package_dict)
         return func_extra_packages
 
@@ -143,7 +151,6 @@ def query_yes_no(question, default="yes"):
     :param default: Default answer to the question
     :return: True or False to the question
     """
-
     valid = {"yes": True, "y": True, "ye": True, "Y": True, "YES": True,
              "no": False, "n": False, "N": False, "NO": False}
 
@@ -168,20 +175,12 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 
-def handle_list_of_dicts():
-    pass
-
-
-def read_ip():
-    pass
-
-
 def read_pub_key():
-    main_key_path = None
-    while not main_key_path or not Path(os.path.expanduser(main_key_path)).is_file():
-        main_key_path = input("Enter a file path for main_key: >> ")
+    key_path = None
+    while not key_path or not Path(os.path.expanduser(key_path)).is_file():
+        key_path = input("Enter a file path for main_key: >> ")
 
-    return main_key_path
+    return key_path
 
 
 def read_beats():
@@ -222,14 +221,60 @@ def read_network_configuration(def_vars):
             # TODO check about variable mutable cod
             read_dict[ip_arg] = str(ip_addr)
 
+    return read_dict
 
-def read_packages():
+
+def read_packages(def_vars):
     read_dict = dict()
+
+    # UPGRADE SYSTEM
     read_dict["UPGRADE_DIST_FLAG"] = query_yes_no("Do you want to update/upgrade the system?")
 
-    # TODO READ PACKAGES
+    # READ BASE PACKAGES
+    if "base_packages" in def_vars:
+        # VALIDATE Already Present vars
+        base_pack = [elem for elem in def_vars["base_packages"]
+                     if Packages.validate(raise_f=False, **elem)
+                     and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
 
-    # TODO READ EXTRA PACKAGES
+        print("\nAll packages:\n"+json.dumps(def_vars["base_packages"]))
+
+        if query_yes_no("Do you want to insert more?"):
+            print("\nEnter Packages.\n")
+            for elem in Packages.read_extra_packages():
+                base_pack.append(elem)
+
+        print("\nAll packages:\n"+json.dumps(def_vars["base_packages"]))
+    else:
+        base_pack = []
+        print("\nNo packages. Please enter package name. Or enter empty string to stop\n")
+        for elem in Packages.read_extra_packages():
+            base_pack.append(elem)
+
+    read_dict["base_packages"] = base_pack
+
+    # READ EXTRA PACKAGES
+    if "extra_packages" in def_vars:
+        # VALIDATE Already Present vars
+        extra_pack = [elem for elem in def_vars["extra_packages"]
+                      if Packages.validate(raise_f=False, **elem)
+                      and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
+
+        print("\nAll packages:\n"+json.dumps(def_vars["extra_packages"]))
+
+        if query_yes_no("Do you want to insert more?"):
+            print("\nEnter Packages.\n")
+            for elem in Packages.read_extra_packages():
+                extra_pack.append(elem)
+
+        print("\nAll packages:\n"+json.dumps(def_vars["extra_packages"]))
+    else:
+        extra_pack = []
+        print("\nNo packages. Please enter package name. Or enter empty string to stop\n")
+        for elem in Packages.read_extra_packages():
+            extra_pack.append(elem)
+
+    read_dict["extra_packages"] = extra_pack
 
     return read_dict
 
@@ -255,11 +300,35 @@ def read_ssh_keys(def_vars):
 
     print(main_key_path)
     read_dict["main_key_path"] = main_key_path
+
     return read_dict
 
 
-def read_sshd_configuration():
-    pass
+def read_sshd_configuration(def_vars):
+    read_dict = dict()
+    if "privileged_host" in def_vars:
+        # VALIDATE Already Present vars
+        priv_args = [elem for elem in def_vars["privileged_host"]
+                     if HostExemption.validate(raise_f=False, **elem)
+                     and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
+
+        print("\nAll Hosts:\n"+json.dumps(def_vars["privileged_host"]))
+        if query_yes_no("Do you want to insert more?"):
+            print("\nPlease enter IPs. Or enter empty string to stop\n")
+            for elem in HostExemption.read_priviliged_hosts(priv_len=len(priv_args)+1):
+                priv_args.append(elem)
+
+            print("\nAll Hosts:\n" + json.dumps(priv_args))
+
+    else:
+        priv_args = []
+        print("\nNo privileged host. Please enter IPs. Or enter empty string to stop\n")
+        for elem in HostExemption.read_priviliged_hosts():
+            priv_args.append(elem)
+
+    read_dict["privileged_host"] = priv_args
+
+    return read_dict
 
 
 def select_roles():
@@ -414,77 +483,16 @@ def main():
     vm_vars = {}
     for role in roles:
         # read_role_vars(role=role)
-        vars.update(read_role_vars(role=role))
+        vm_vars.update(read_role_vars(role=role))
 
-    print(json.dumps(vars, indent=4))
+    print(json.dumps(vm_vars, indent=4))
 
     # TODO Either After A) or B) FOR EACH ROLE ATTEMPT TO LOAD VARS, VALIDATE, OVERWRITE VARS
-
-    # try:
-    #     with open(os.path.expanduser(DEFAULTS_PATH), 'r') as f:
-    #         def_vars = json.load(f)
-    # except IOError:
-    #     print("Skipping loaded variables, No such FILE: %s" % DEFAULTS_PATH)
-    #     print("You have to provide all variables")
-    #     def_vars = dict()
-    #
-    # print(json.dumps(def_vars, indent=4))
-
-    # Validate Upgrade Dist
-    # "UPGRADE_DIST_FLAG"
-    vm_vars = dict()
-
-    # TODO
-    if "privileged_host" in def_vars:
-        # VALIDATE Already Present vars
-        priv_args = [elem for elem in def_vars["privileged_host"]
-                     if HostExemption.validate(raise_f=False, **elem)
-                     and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
-
-        print("\nAll Hosts:\n"+json.dumps(def_vars["privileged_host"]))
-        if query_yes_no("Do you want to insert more?"):
-            print("\nPlease enter IPs. Or enter empty string to stop\n")
-            for elem in HostExemption.read_priviliged_hosts(priv_len=len(priv_args)+1):
-                priv_args.append(elem)
-
-            print("\nAll Hosts:\n" + json.dumps(priv_args))
-
-    else:
-        priv_args = []
-        print("\nNo privileged host. Please enter IPs. Or enter empty string to stop\n")
-        for elem in HostExemption.read_priviliged_hosts():
-            priv_args.append(elem)
-
-    vm_vars["privileged_host"] = priv_args
-
-    if "extra_packages" in def_vars:
-        # VALIDATE Already Present vars
-        extra_pack = [elem for elem in def_vars["extra_packages"]
-                      if ExtraPackages.validate(raise_f=False, **elem)
-                      and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
-
-        print("\nAll packages:\n"+json.dumps(def_vars["extra_packages"]))
-
-        if query_yes_no("Do you want to insert more?"):
-            print("\nEnter Packages.\n")
-            for elem in ExtraPackages.read_extra_packages():
-                extra_pack.append(elem)
-
-        print("\nAll packages:\n"+json.dumps(def_vars["extra_packages"]))
-
-    else:
-        extra_pack = []
-        print("\nNo packages. Please enter package name. Or enter empty string to stop\n")
-        for elem in ExtraPackages.read_extra_packages():
-            extra_pack.append(elem)
-
-    vm_vars["extra_packages"] = extra_pack
 
     print(json.dumps(vm_vars, indent=4))
 
     with open('new_vm_vars.json', 'w') as f:
         json.dump(vm_vars, f, indent=4)
-    # FIND FREE IP
     return 0
 
 if __name__ == '__main__':
