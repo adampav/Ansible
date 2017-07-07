@@ -9,6 +9,7 @@ from pathlib import Path
 
 DEFAULTS_PATH = 'new_vm_defaults.json'
 ROLE_PATH = 'administration/roles'
+PLAYBOOK_PATH = 'administration'
 ROLES = 'roles.json'
 PLAYBOOKS = 'playbooks.json'
 PLAYBOOK_ROLES = 'playbook_roles.json'
@@ -218,20 +219,21 @@ def select_roles():
 
 def select_playbook():
     try:
+        # Another implementation is to read all YML files in a directory
         with open(PLAYBOOKS, 'r') as f:
             playbooks = json.load(f)
-        # print("\nAvailable Roles are:\n"+json.dumps(playbooks, indent=4))
-    except:
-        print("No Playbooks specified. Exiting")
+    except IOError:
+        print("No valid file for Playbook provided. Returning \"None\"")
         return None
 
+    playbooks.sort()
     while True:
         i = 0
         for playbook in playbooks:
             print('{0} -> {1}'.format(i, playbook))
             i += 1
 
-        choice = input("\nSelet one from the choices above using the number.\n")
+        choice = input("\nPlease Select one choice as listed above.\n")
 
         if choice and int(choice) in range(0, len(playbooks)):
             break
@@ -244,17 +246,15 @@ def select_playbook():
     print(chosen_playbook)
 
     try:
-        with open(PLAYBOOK_ROLES, 'r') as f:
-            playbook_roles = json.load(f)
-        print("\nAvailable Roles are:\n" + json.dumps(playbook_roles[chosen_playbook], indent=4))
-    except:
-        print("No Roles Configured specified.")
+        with open(PLAYBOOK_PATH + "/{0}.yml".format(chosen_playbook)) as f:
+            role_yaml = yaml.load(f)
+            playbook_roles = role_yaml[1]["roles"]
+        print(json.dumps(playbook_roles, indent=4))
+    except IOError:
+        print("Problem extracting roles from playbook")
         return None
 
-    if chosen_playbook not in playbook_roles:
-        return None
-
-    return playbook_roles[chosen_playbook]
+    return playbook_roles
 
 
 def generate_temporary_playbook():
