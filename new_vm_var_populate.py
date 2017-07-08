@@ -402,16 +402,7 @@ def select_playbook():
     chosen_playbook = playbooks[int(choice)]
     print(chosen_playbook)
 
-    try:
-        with open(PLAYBOOK_PATH + "/{0}.yml".format(chosen_playbook)) as f:
-            role_yaml = yaml.load(f)
-            playbook_roles = role_yaml[1]["roles"]
-        print(json.dumps(playbook_roles, indent=4))
-    except IOError:
-        print("Problem extracting roles from playbook")
-        return None
-
-    return playbook_roles
+    return chosen_playbook
 
 
 def generate_temporary_playbook():
@@ -469,28 +460,38 @@ def read_role_vars(role=None):
         role_vars = {}
 
     try:
-        with open(CUSTOM_ROLE_VARS + "/{0}/my_vars.yml".format(role)) as f:
-            yaml.dump(role_vars, f)
-        print("Printing to File: " + CUSTOM_ROLE_VARS + "/{0}/my_vars.yml".format(role)
-              + json.dumps(role_vars, indent=4))
-    except IOError:
-        print("Unknown shit happened.")
+        os.makedirs(CUSTOM_ROLE_VARS + "/{0}/".format(role))
+    except FileExistsError:
+        pass
+
+    with open(CUSTOM_ROLE_VARS + "/{0}/my_vars.yml".format(role), 'w') as f:
+        yaml.dump(role_vars, f)
+    print("Printing to File: " + CUSTOM_ROLE_VARS + "/{0}/my_vars.yml\n".format(role)
+          + json.dumps(role_vars, indent=4) + "\n\n")
 
     return role_vars
 
 
-def main():
-    # TODO ASK WHICH ROLES WILL BE RUN
-    # Case 1 -> Playbooks available
-
+def main(playbook=None):
     roles = None
-    if query_yes_no("Select a playbook?"):
-        roles = select_playbook()
+    # Case 1 -> Playbooks available
+    if playbook or query_yes_no("Select a playbook?"):
+        if not playbook:
+            playbook = select_playbook()
+        try:
+            with open(PLAYBOOK_PATH + "/{0}.yml".format(playbook)) as f:
+                role_yaml = yaml.load(f)
+                roles = role_yaml[1]["roles"]
+            print(json.dumps(roles, indent=4))
+        except IOError:
+            print("Problem extracting roles from playbook")
+            playbook = None
 
     if not roles and not query_yes_no("Select Roles?"):
         print("No valid Options. Exiting")
         return 0
 
+    # Case 2 -> Select Roles Ad Hoc
     if not roles:
         roles = select_roles()
 
@@ -505,4 +506,7 @@ def main():
     return 0
 
 if __name__ == '__main__':
-    main()
+    if len(sys.argv) != 2:
+        main()
+    else:
+        main(playbook=sys.argv[1])
