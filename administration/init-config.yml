@@ -10,6 +10,7 @@
   vars:
   roles:
     - install-python
+    - manage-iptables
     - manage-packages
     - manage-ssh-keys
     - manage-network-configuration
