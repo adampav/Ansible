@@ -14,6 +14,7 @@ PLAYBOOK_PATH = 'administration'
 ROLES = 'roles.json'
 PLAYBOOKS = 'playbooks.json'
 PLAYBOOK_ROLES = 'playbook_roles.json'
+POPULATED_VARS_OUTPUT = 'populated_vars.json'
 ip_args = ["primary_ip", "primary_netmask", "primary_network",
            "primary_broadcast", "primary_dns1", "primary_dns2", "gateway"]
 
@@ -501,7 +502,7 @@ def main(playbook=None):
 
     print(json.dumps(vm_vars, indent=4))
 
-    with open('populated_vars.json', 'w') as f:
+    with open(POPULATED_VARS_OUTPUT, 'w') as f:
         json.dump(vm_vars, f, indent=4)
     return 0
 
