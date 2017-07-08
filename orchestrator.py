@@ -6,14 +6,24 @@ from populate_role_vars import POPULATED_VARS_OUTPUT
 from populate_role_vars import PLAYBOOK_PATH
 import subprocess
 
+def_run_parameters = {
+    "user": "root",
+    "password": False,
+    "sudo": False
+}
+
+interactive = True
+
 
 def main():
     playbook = select_playbook()
     if query_yes_no("Populate Vars."):
         populator(playbook=playbook)
 
-    # TODO read user
-    user = "some_user"
+    user = def_run_parameters["user"]
+
+    while interactive and not user and query_yes_no("Change value?\n\"user\":\t{0}".format(user), default=False):
+        user = input("Please enter the user to run Ansible as: >> ")
 
     # TODO read private key file
 
@@ -26,8 +36,24 @@ def main():
         POPULATED_VARS_OUTPUT
     ]
 
-    # TODO read sudo
+    password = def_run_parameters["password"]
+
+    while interactive and query_yes_no("Change value?\n\"password\":\t{0}".format(str(password)), default=False):
+        password = query_yes_no("Password Authentication?")
+
+    if password:
+        exec_list.append('-k')
+
+    sudo = def_run_parameters["sudo"]
+
+    while interactive and query_yes_no("Change value?\n\"sudo\":\t{0}".format(str(sudo)), default=False):
+        sudo = query_yes_no("Elevate privileges?")
+
+    if sudo:
+        exec_list.append('-K')
+
     # TODO read inventory? / read IP ???
+
     if query_yes_no("Read IP?"):
         exec_list.append("-i")
     elif query_yes_no("Read Inventory Host/Group?"):
@@ -38,3 +64,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    # TODO implement argparse
