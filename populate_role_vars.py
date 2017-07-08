@@ -407,6 +407,7 @@ def select_playbook():
 
 
 def generate_temporary_playbook():
+    # TODO : IMPLEMENT based on jinja2 template
     pass
 
 
