@@ -176,7 +176,7 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 
-def read_pub_key(def_vars):
+def read_pub_key():
     key_path = None
     while not key_path or not Path(os.path.expanduser(key_path)).is_file():
         key_path = input("Enter a file path for main_key: >> ")
@@ -198,7 +198,7 @@ def read_fail2ban(def_vars):
 
 def read_iptables(def_vars):
     read_dict = dict()
-
+    read_dict["restricted_services"] = def_vars["restricted_services"]
     return read_dict
 
 
