@@ -198,7 +198,21 @@ def read_fail2ban(def_vars):
 
 def read_iptables(def_vars):
     read_dict = dict()
-    read_dict["restricted_services"] = def_vars["restricted_services"]
+    if query_yes_no("SSH?"):
+        if query_yes_no("Restrict SSH"):
+            read_dict["restricted_services"] = def_vars["restricted_services"]
+        else:
+            pass
+
+    # READ Template for Rules
+
+    # READ allow out ?
+
+    # TODO Implement more services
+    # READ BASE services
+
+    # READ RESTRICTED services
+
     return read_dict
 
 
