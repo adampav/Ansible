@@ -20,8 +20,10 @@ def main():
     exec_list = [
         'ansible-playbook',
         '{0}/{1}.yml'.format(PLAYBOOK_PATH, playbook),
+        '-u',
+        user,
         '-e',
-        user
+        POPULATED_VARS_OUTPUT
     ]
 
     # TODO read sudo
