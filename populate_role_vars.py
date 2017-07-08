@@ -176,7 +176,7 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 
-def read_pub_key():
+def read_pub_key(def_vars):
     key_path = None
     while not key_path or not Path(os.path.expanduser(key_path)).is_file():
         key_path = input("Enter a file path for main_key: >> ")
@@ -184,20 +184,28 @@ def read_pub_key():
     return key_path
 
 
-def read_beats():
-    pass
+def read_beats(def_vars):
+    read_dict = dict()
+
+    return read_dict
 
 
-def read_fail2ban():
-    pass
+def read_fail2ban(def_vars):
+    read_dict = dict()
+
+    return read_dict
 
 
-def read_iptables():
-    pass
+def read_iptables(def_vars):
+    read_dict = dict()
+
+    return read_dict
 
 
-def read_hostnames():
-    pass
+def read_hostnames(def_vars):
+    read_dict = dict()
+
+    return read_dict
 
 
 def read_network_configuration(def_vars):
@@ -289,8 +297,10 @@ def read_packages(def_vars):
     return read_dict
 
 
-def read_saltstack():
-    pass
+def read_saltstack(def_vars):
+    read_dict = dict()
+
+    return read_dict
 
 
 def read_ssh_keys(def_vars):
