@@ -355,7 +355,7 @@ def select_roles():
                 print('{0} -> {1}'.format(i, role))
                 i += 1
 
-            choice = input("\nSelet one from the choices above using the number.\nEmpty to stop.\n")
+            choice = input("\nPlease select one from the choices above using the number.\nEmpty to stop.\n")
 
             if not choice:
                 if chosen_roles:
@@ -392,10 +392,12 @@ def select_playbook():
             i += 1
 
         choice = input("\nPlease Select one choice as listed above.\n")
-
-        if choice and int(choice) in range(0, len(playbooks)):
-            break
-        else:
+        try:
+            if choice and int(choice) in range(0, len(playbooks)):
+                break
+            else:
+                print("\nInvalid Choice\n")
+        except ValueError:
             print("\nInvalid Choice\n")
 
     # TODO FOR PLAYBOOK READ ROLES
@@ -474,7 +476,7 @@ def read_role_vars(role=None):
     return role_vars
 
 
-def main(playbook=None):
+def main(playbook=None, temp_playbook=False):
     roles = None
     # Case 1 -> Playbooks available
     if playbook or query_yes_no("Select a playbook?"):
@@ -489,13 +491,15 @@ def main(playbook=None):
             print("Problem extracting roles from playbook")
             playbook = None
 
-    if not roles and not query_yes_no("Select Roles?"):
+    if not roles and not temp_playbook and not query_yes_no("Select Roles?"):
         print("No valid Options. Exiting")
         return 0
-
-    # Case 2 -> Select Roles Ad Hoc
-    if not roles:
+    elif not roles:
         roles = select_roles()
+    else:
+        pass
+
+    print(json.dumps(roles, indent=4))
 
     vm_vars = {}
     for role in roles:
