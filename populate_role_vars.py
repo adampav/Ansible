@@ -501,7 +501,7 @@ def main(playbook=None):
 
     print(json.dumps(vm_vars, indent=4))
 
-    with open('new_vm_vars.json', 'w') as f:
+    with open('populated_vars.json', 'w') as f:
         json.dump(vm_vars, f, indent=4)
     return 0
 
