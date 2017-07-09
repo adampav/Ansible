@@ -231,6 +231,8 @@ def read_iptables(def_vars):
                 ip_addr = read_ip(custom_message=" to allow SSH from.", accept_none=True)
                 if not ip_addr:
                     break
+                else:
+                    ssh_service["sources"].append(ip_addr)
 
             try:
                 read_dict["restricted_services"] = def_vars["restricted_services"]
