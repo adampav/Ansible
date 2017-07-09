@@ -191,7 +191,7 @@ def read_ip(custom_message="", accept_none=False):
     # TODO more stuff needed
     while not ip_addr:
         try:
-            ip_input = input("Please enter an IP address: >>")
+            ip_input = input("Please enter an IP address{0}: >>".format(custom_message))
             ip_addr = ipaddress.ip_address(ip_input)
         except ValueError:
             if accept_none and ip_input in locals() and not ip_input:
@@ -217,22 +217,30 @@ def read_fail2ban(def_vars):
 def read_iptables(def_vars):
     read_dict = dict()
     if query_yes_no("SSH?"):
+        # DEFINE SSH SERVICE
+        ssh_service = dict()
+        ssh_service["port"] = 22
+        ssh_service["service"] = "ssh"
+        ssh_service["protocol"] = "tcp"
+        ssh_service["iface"] = "{{ iface }}"
+        ssh_service["direction"] = "in"
+
         if query_yes_no("Restrict SSH"):
-            read_dict["restricted_services"] = def_vars["restricted_services"]
+            ssh_service["sources"] = list()
+            while True:
+                ip_addr = read_ip(custom_message=" to allow SSH from.", accept_none=True)
+                if not ip_addr:
+                    break
 
-            ssh_service = dict()
-            ssh_service["port"] = 22
-            ssh_service["service"] = "ssh"
-            ssh_service["protocol"] = "tcp"
-            ssh_service["iface"] = "{{ iface }}"
-            read_dict["restricted_services"] = dict()
-
-            # while True:
-            #     # READ SERVICES
-            #     while True
-            #         # READ Sources
+            try:
+                read_dict["restricted_services"] = def_vars["restricted_services"]
+            except KeyError:
+                read_dict["restricted_services"] = ssh_service
         else:
-            pass
+            try:
+                read_dict["public_services"] = def_vars["public_services"]
+            except KeyError:
+                read_dict["public_services"] = ssh_service
 
     # READ Template for Rules
 
