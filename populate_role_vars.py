@@ -186,6 +186,18 @@ def read_pub_key():
     return key_path
 
 
+def read_ip():
+    ip_addr = None
+    # TODO more stuff needed
+    while not ip_addr:
+        try:
+            ip_input = input("Please enter an IP address")
+        except:
+            pass
+
+    return ip_addr
+
+
 def read_beats(def_vars):
     read_dict = dict()
 
@@ -203,6 +215,18 @@ def read_iptables(def_vars):
     if query_yes_no("SSH?"):
         if query_yes_no("Restrict SSH"):
             read_dict["restricted_services"] = def_vars["restricted_services"]
+
+            ssh_service = dict()
+            ssh_service["port"] = 22
+            ssh_service["service"] = "ssh"
+            ssh_service["protocol"] = "tcp"
+            ssh_service["iface"] = "{{ iface }}"
+            read_dict["restricted_services"] = dict()
+
+            # while True:
+            #     # READ SERVICES
+            #     while True
+            #         # READ Sources
         else:
             pass
 
