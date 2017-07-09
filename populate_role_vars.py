@@ -7,6 +7,8 @@ import sys
 import ipaddress
 from pathlib import Path
 
+# TODO put this to configuration
+
 DEFAULTS_PATH = 'new_vm_defaults.json'
 ROLE_PATH = 'administration/roles'
 CUSTOM_ROLE_VARS = 'ansible-files/roles_var'
@@ -444,7 +446,9 @@ def read_role_vars(role=None):
     try:
         with open(CUSTOM_ROLE_VARS + "/{0}/my_vars.yml".format(role)) as f:
             role_vars = yaml.load(f)
-        print(json.dumps(role_vars, indent=4))
+        if role_vars:
+            print("Custom Role VARS from file: " + CUSTOM_ROLE_VARS + "/{0}/my_vars.yml\n".format(role)
+                  + json.dumps(role_vars, indent=4) + "\n\n")
     except IOError:
         print("File: " + CUSTOM_ROLE_VARS + "/{0}/my_vars.yml not found.".format(role))
         role_vars = dict()
@@ -510,7 +514,6 @@ def main(playbook=None, temp_playbook=False):
             with open(PLAYBOOK_PATH + "/{0}.yml".format(playbook)) as f:
                 role_yaml = yaml.load(f)
                 roles = role_yaml[1]["roles"]
-            print(json.dumps(roles, indent=4))
         except IOError:
             print("Problem extracting roles from playbook")
             playbook = None
