@@ -283,16 +283,7 @@ def read_network_configuration(def_vars):
                 continue
         else:
             print("\nNo default value for \"%s\"." % ip_arg)
-            ip_addr = None
-
-            while not ip_addr:
-                try:
-                    ip_addr = ipaddress.ip_address(input("Enter an IP Address for %s : >> " % ip_arg))
-                except ValueError:
-                    print("Bad IP address!")
-
-            # TODO check about variable mutable cod
-            read_dict[ip_arg] = str(ip_addr)
+            read_dict[ip_arg] = str(read_ip(custom_message=" for {0}".format(ip_arg)))
 
     return read_dict
 
