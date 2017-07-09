@@ -191,7 +191,7 @@ def read_ip(custom_message="", accept_none=False):
     # TODO more stuff needed
     while not ip_addr:
         try:
-            ip_input = input("Please enter an IP address{0}: >>".format(custom_message))
+            ip_input = input("Please enter an IP address{0}: >>\t".format(custom_message))
             ip_addr = ipaddress.ip_address(ip_input)
         except ValueError:
             if accept_none and ip_input in locals() and not ip_input:
@@ -228,7 +228,7 @@ def read_iptables(def_vars):
         if query_yes_no("Restrict SSH"):
             ssh_service["sources"] = list()
             while True:
-                ip_addr = read_ip(custom_message=" to allow SSH from.", accept_none=True)
+                ip_addr = read_ip(custom_message=" to allow SSH from", accept_none=True)
                 if not ip_addr:
                     break
                 else:
