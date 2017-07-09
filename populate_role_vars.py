@@ -188,13 +188,13 @@ def read_pub_key():
 
 def read_ip(custom_message="", accept_none=False):
     ip_addr = None
-    # TODO more stuff needed
+    ip_input = None
     while not ip_addr:
         try:
-            ip_input = input("Please enter an IP address{0}: >>\t".format(custom_message))
+            ip_input = input("Please enter an IP address{0}: >> ".format(custom_message))
             ip_addr = ipaddress.ip_address(ip_input)
         except ValueError:
-            if accept_none and ip_input in locals() and not ip_input:
+            if accept_none and not ip_input:
                 return None
             else:
                 print("Bad IP Format. Try again!\n\n")
@@ -225,6 +225,16 @@ def read_iptables(def_vars):
         ssh_service["iface"] = "{{ iface }}"
         ssh_service["direction"] = "in"
 
+        # REMOVE OLD SSH RULES from public_services
+        if def_vars["public_services"]:
+            read_dict["public_services"] = [elem for elem in def_vars["public_services"]
+                                            if elem["service"] != "ssh" and elem["port"] != 22]
+
+        # REMOVE OLD SSH RULES from restricted_services
+        if def_vars["restricted_services"]:
+            read_dict["restricted_services"] = [elem for elem in def_vars["restricted_services"]
+                                                if elem["service"] != "ssh" and elem["port"] != 22]
+
         if query_yes_no("Restrict SSH"):
             ssh_service["sources"] = list()
             while True:
@@ -232,7 +242,7 @@ def read_iptables(def_vars):
                 if not ip_addr:
                     break
                 else:
-                    ssh_service["sources"].append(ip_addr)
+                    ssh_service["sources"].append(str(ip_addr))
 
             try:
                 read_dict["restricted_services"] = def_vars["restricted_services"]
