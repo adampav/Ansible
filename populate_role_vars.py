@@ -328,14 +328,14 @@ def read_packages(def_vars):
                       if Packages.validate(raise_f=False, **elem)
                       and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
 
-        print("\nAll packages:\n"+json.dumps(def_vars["extra_packages"]))
+        print("\nAll packages:\n"+json.dumps(def_vars["extra_packages"], indent=4))
 
         if query_yes_no("Do you want to insert more?"):
             print("\nEnter Packages.\n")
             for elem in Packages.read_extra_packages():
                 extra_pack.append(elem)
 
-        print("\nAll packages:\n"+json.dumps(def_vars["extra_packages"]))
+        print("\nAll packages:\n"+json.dumps(def_vars["extra_packages"], indent=4))
     else:
         extra_pack = []
         print("\nNo packages. Please enter package name. Or enter empty string to stop\n")
@@ -387,13 +387,13 @@ def read_sshd_configuration(def_vars):
                      if HostExemption.validate(raise_f=False, **elem)
                      and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
 
-        print("\nAll Hosts:\n"+json.dumps(def_vars["privileged_host"]))
+        print("\nAll Hosts:\n"+json.dumps(def_vars["privileged_host"], indent=4))
         if query_yes_no("Do you want to insert more?"):
             print("\nPlease enter IPs. Or enter empty string to stop\n")
             for elem in HostExemption.read_priviliged_hosts(priv_len=len(priv_args)+1):
                 priv_args.append(elem)
 
-            print("\nAll Hosts:\n" + json.dumps(priv_args))
+            print("\nAll Hosts:\n" + json.dumps(priv_args, indent=4))
 
     else:
         priv_args = []
