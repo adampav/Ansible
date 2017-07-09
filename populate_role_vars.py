@@ -301,14 +301,14 @@ def read_packages(def_vars):
                      if Packages.validate(raise_f=False, **elem)
                      and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
 
-        print("\nAll packages:\n"+json.dumps(def_vars["base_packages"]))
+        print("\nAll packages:\n"+json.dumps(def_vars["base_packages"], indent=4))
 
         if query_yes_no("Do you want to insert more?"):
             print("\nEnter Packages.\n")
             for elem in Packages.read_extra_packages():
                 base_pack.append(elem)
 
-        print("\nAll packages:\n"+json.dumps(def_vars["base_packages"]))
+        print("\nAll packages:\n"+json.dumps(def_vars["base_packages"], indent=4))
     else:
         base_pack = []
         print("\nNo packages. Please enter package name. Or enter empty string to stop\n")
