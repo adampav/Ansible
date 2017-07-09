@@ -226,12 +226,12 @@ def read_iptables(def_vars):
         ssh_service["direction"] = "in"
 
         # REMOVE OLD SSH RULES from public_services
-        if def_vars["public_services"]:
+        if "public_services" in def_vars:
             read_dict["public_services"] = [elem for elem in def_vars["public_services"]
                                             if elem["service"] != "ssh" and elem["port"] != 22]
 
         # REMOVE OLD SSH RULES from restricted_services
-        if def_vars["restricted_services"]:
+        if "restricted_services" in def_vars:
             read_dict["restricted_services"] = [elem for elem in def_vars["restricted_services"]
                                                 if elem["service"] != "ssh" and elem["port"] != 22]
 
@@ -247,12 +247,14 @@ def read_iptables(def_vars):
             try:
                 read_dict["restricted_services"] = def_vars["restricted_services"]
             except KeyError:
-                read_dict["restricted_services"] = ssh_service
+                read_dict["restricted_services"] = list()
+                read_dict["restricted_services"].append(ssh_service)
         else:
             try:
                 read_dict["public_services"] = def_vars["public_services"]
             except KeyError:
-                read_dict["public_services"] = ssh_service
+                read_dict["public_services"] = list()
+                read_dict["public_services"].append(ssh_service)
 
     # READ Template for Rules
 
@@ -277,12 +279,12 @@ def read_network_configuration(def_vars):
     # Validate IP Settings
     for ip_arg in ip_args:
         if ip_arg in def_vars:
-            print("\nDefault Value for \"%s\" is:\t %s\n" % (ip_arg, def_vars[ip_arg]))
+            print("\nDefault Value:\t{1}\tfor\t\"{0}\"\n".format(ip_arg, def_vars[ip_arg]))
             if query_yes_no("Keep the default value?"):
                 read_dict[ip_arg] = def_vars[ip_arg]
                 continue
         else:
-            print("\nNo default value for \"%s\"." % ip_arg)
+            print("\nNo default value for \"{0}\".".format(ip_arg))
             read_dict[ip_arg] = str(read_ip(custom_message=" for {0}".format(ip_arg)))
 
     return read_dict
