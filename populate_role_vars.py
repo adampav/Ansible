@@ -186,14 +186,18 @@ def read_pub_key():
     return key_path
 
 
-def read_ip():
+def read_ip(custom_message="", accept_none=False):
     ip_addr = None
     # TODO more stuff needed
     while not ip_addr:
         try:
-            ip_input = input("Please enter an IP address")
-        except:
-            pass
+            ip_input = input("Please enter an IP address: >>")
+            ip_addr = ipaddress.ip_address(ip_input)
+        except ValueError:
+            if accept_none and ip_input in locals() and not ip_input:
+                return None
+            else:
+                print("Bad IP Format. Try again!\n\n")
 
     return ip_addr
 
