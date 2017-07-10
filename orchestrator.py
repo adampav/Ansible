@@ -132,7 +132,7 @@ def main(args):
             exit()
 
     exec_list.append('-e')
-    exec_list.append(POPULATED_VARS_OUTPUT)
+    exec_list.append("@" + POPULATED_VARS_OUTPUT)
 
     command = ""
     for elem in exec_list:
