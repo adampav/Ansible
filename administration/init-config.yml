@@ -16,6 +16,6 @@
     - manage-network-configuration
     - manage-sshd-configuration
   tasks:
-    - name: reboot the system when playbook is applied
+    - name: reboot the system after playbook execution
       command: /sbin/shutdown -r 1 "Ansible Calling for a System Reboot"
 ...

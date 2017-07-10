@@ -256,6 +256,8 @@ def read_iptables(def_vars):
                 read_dict["public_services"] = list()
                 read_dict["public_services"].append(ssh_service)
 
+    # TODO Ask for application of FW rules
+
     # READ Template for Rules
 
     # READ allow out ?
@@ -466,8 +468,6 @@ def select_playbook():
                 print("\nInvalid Choice\n")
         except ValueError:
             print("\nInvalid Choice\n")
-
-    # TODO FOR PLAYBOOK READ ROLES
 
     chosen_playbook = playbooks[int(choice)]
     print(chosen_playbook)
