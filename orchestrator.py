@@ -15,7 +15,8 @@ def_run_parameters = {
     "password": False,
     "sudo": False,
     "interactive": False,
-    "populate_vars": False
+    "populate_vars": False,
+    "debug": True
 }
 
 parser = argparse.ArgumentParser(description="Orchestrator is a cool wrapper for using Ansible :) ")
@@ -37,6 +38,11 @@ parser.add_argument('--password',
 parser.add_argument('--sudo',
                     help='Privilege Escalation.',
                     default=def_run_parameters["interactive"],
+                    action='store_true')
+
+parser.add_argument('--debug',
+                    help='Dry Run Execution.',
+                    default=def_run_parameters["debug"] or False,
                     action='store_true')
 
 parser.add_argument('--user',
@@ -131,6 +137,10 @@ def main(args):
     command = ""
     for elem in exec_list:
         command += elem + ' '
+
+    print(command)
+    if args.debug and not query_yes_no("Do you want to execute the command?", default="no"):
+        exit()
 
     os.system(command)
 
