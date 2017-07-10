@@ -178,10 +178,10 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 
-def read_pub_key():
+def read_pub_key(key="main"):
     key_path = None
     while not key_path or not Path(os.path.expanduser(key_path)).is_file():
-        key_path = input("Enter a file path for main_key: >> ")
+        key_path = input("Enter a file path for {0}_key: >> ".format(key))
 
     return key_path
 
@@ -377,7 +377,23 @@ def read_ssh_keys(def_vars):
         else:
             main_key_path = read_pub_key()
 
-    print(main_key_path)
+    if query_yes_no("Root Key?"):
+        if query_yes_no("Same key as the one specified in \"main_key_path\"?"):
+            read_dict["root_key_path"] = main_key_path
+        else:
+            if "root_key_path" not in def_vars or not Path(os.path.expanduser(def_vars["root_key_path"])).is_file():
+                print("default \"root_key_path\" points to an invalid file or does not exist. Ignoring\n")
+
+                root_key_path = read_pub_key(key="root")
+            else:
+                print("Default value for \"root_key_path\" points to %s.\n" % def_vars["root_key_path"])
+                if query_yes_no("Keep the default value?"):
+                    root_key_path = def_vars["root_key_path"]
+                else:
+                    root_key_path = read_pub_key(key="root")
+
+            read_dict["root_key_path"] = root_key_path
+
     read_dict["main_key_path"] = main_key_path
 
     return read_dict
@@ -470,7 +486,7 @@ def select_playbook():
             print("\nInvalid Choice\n")
 
     chosen_playbook = playbooks[int(choice)]
-    print(chosen_playbook)
+    print("Chose playbook is: \"{0}\"".format(chosen_playbook))
 
     return chosen_playbook
 
@@ -573,7 +589,7 @@ def main(playbook=None, temp_playbook=False):
     for role in roles:
         vm_vars.update(read_role_vars(role=role))
 
-    print(json.dumps(vm_vars, indent=4))
+    print("\nContents of {0} are:\n".format(POPULATED_VARS_OUTPUT) + json.dumps(vm_vars, indent=4))
 
     with open(POPULATED_VARS_OUTPUT, 'w') as f:
         json.dump(vm_vars, f, indent=4)
