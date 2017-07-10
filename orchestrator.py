@@ -16,7 +16,7 @@ def_run_parameters = {
     "sudo": False,
     "interactive": False,
     "populate_vars": False,
-    "debug": True
+    "debug": False
 }
 
 parser = argparse.ArgumentParser(description="Orchestrator is a cool wrapper for using Ansible :) ")

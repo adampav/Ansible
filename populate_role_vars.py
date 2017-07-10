@@ -235,7 +235,7 @@ def read_iptables(def_vars):
             read_dict["restricted_services"] = [elem for elem in def_vars["restricted_services"]
                                                 if elem["service"] != "ssh" and elem["port"] != 22]
 
-        if query_yes_no("Restrict SSH"):
+        if query_yes_no("Restrict SSH?"):
             ssh_service["sources"] = list()
             while True:
                 ip_addr = read_ip(custom_message=" to allow SSH from", accept_none=True)
@@ -255,6 +255,57 @@ def read_iptables(def_vars):
             except KeyError:
                 read_dict["public_services"] = list()
                 read_dict["public_services"].append(ssh_service)
+
+    while True:
+        print("\nPlease Enter New Service\n")
+        service = dict()
+        try:
+            service["port"] = int(input("Enter Port number: >> "))
+        except ValueError:
+            break
+        service["service"] = input("Enter Service Name: >> ")
+        if not service["service"]:
+            break
+
+        if query_yes_no("TCP?"):
+            service["protocol"] = "tcp"
+        elif query_yes_no("UDP?"):
+            service["protocol"] = "udp"
+        else:
+            continue
+
+        service["iface"] = "{{ iface }}"
+        if query_yes_no("Ingress?"):
+            service["direction"] = "in"
+        else:
+            service["direction"] = "out"
+
+        if query_yes_no("Restrict Service?"):
+            service["sources"] = list()
+            while True:
+                ip_addr = read_ip(custom_message=" to allow {0} from".format(service["service"]), accept_none=True)
+                if not ip_addr:
+                    break
+                else:
+                    service["sources"].append(str(ip_addr))
+
+            try:
+                read_dict["restricted_services"].append(service)
+            except KeyError:
+                read_dict["restricted_services"] = list()
+                read_dict["restricted_services"].append(service)
+        else:
+            try:
+                read_dict["public_services"].append(service)
+            except KeyError:
+                read_dict["public_services"] = list()
+                read_dict["public_services"].append(service)
+
+            # TODO Refactor this to a class, like Packages-Hosts
+
+    read_dict["RELOAD_FLAG"] = query_yes_no("ATTENTION!\nReload the rules immediately?\n"
+                                            "This might result in a loss of connectivity",
+                                            default="no")
 
     # TODO Ask for application of FW rules
 
