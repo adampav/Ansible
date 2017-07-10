@@ -4,6 +4,7 @@
     user: "{{ item.0.username }}"
     state: "{{ item.0.state }}"
     key: "{{ lookup('file', item.1) }}"
+  when: item.1
   with_subelements:
     - '{{ ssh_vars }}'
     - keys
