@@ -86,7 +86,7 @@ def main(args):
     while args.interactive and query_yes_no("Change value?\n\"password\":\t{0}".format(str(password)), default="no"):
         password = query_yes_no("Password Authentication?")
 
-    if password:
+    if args.password or password:
         exec_list.append('-k')
 
     sudo = def_run_parameters["sudo"]
