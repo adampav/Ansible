@@ -358,7 +358,11 @@ def read_packages(def_vars):
 
 def read_saltstack(def_vars):
     read_dict = dict()
-
+    read_dict["SALT_INSTALL_FLAG"] = query_yes_no("Install Salt?", default="no")
+    read_dict["SALT_CONFIGURE_FLAG"] = query_yes_no("Configure Salt?")
+    read_dict["SALT_MINION_FLAG"] = query_yes_no("Salt Minion?")
+    read_dict["SALT_MASTER_FLAG"] = query_yes_no("Salt Master?", default="no")
+    read_dict["SALT_MASTER_IP"] = read_ip(custom_message=" for Salt Master")
     return read_dict
 
 
@@ -533,7 +537,6 @@ def read_role_vars(role=None):
         print(role)
         role_vars = read_packages(role_vars)
     elif role == "manage-saltstack-deployment":
-        # TODO read important role_vars for saltstack
         print(role)
         role_vars = read_saltstack(role_vars)
     elif role == "manage-ssh-keys":
