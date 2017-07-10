@@ -94,7 +94,7 @@ def main(args):
     while args.interactive and query_yes_no("Change value?\n\"sudo\":\t{0}".format(str(sudo)), default="no"):
         sudo = query_yes_no("Elevate privileges?")
 
-    if sudo:
+    if args.sudo or sudo:
         exec_list.append('-K')
 
     # TODO read inventory? / read IP ???
