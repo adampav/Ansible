@@ -3,7 +3,6 @@
 :INPUT DROP [0:0]
 :FORWARD DROP [0:0]
 :OUTPUT DROP [0:0]
-COMMIT
 
 # Allow IPv6 DNS
 -A OUTPUT -o {{ iface }} -p udp -m conntrack --ctstate NEW,ESTABLISHED -m udp --dport 53 -j ACCEPT
