@@ -3,13 +3,13 @@
   apt:
     name: apt-transport-https
     state: latest
-  when: INSTALL_FLAG == True
+  when: SALT_INSTALL_FLAG == True
 
 - name: Add GPG Repository Key for Saltstack
   apt_key:
     url: "https://repo.saltstack.com/apt/debian/8/amd64/latest/SALTSTACK-GPG-KEY.pub"
     state: present
-  when: INSTALL_FLAG == True
+  when: SALT_INSTALL_FLAG == True
 
 - name: Add apt sources
   lineinfile:
@@ -21,18 +21,23 @@
     group: root
     mode: 0644
     create: True
-  when:  INSTALL_FLAG == True
+  when:  SALT_INSTALL_FLAG == True
 
-- name: Install Saltstack
+- name: Install Saltstack Minion
   apt:
     update_cache: yes
-    name: "{{ item.name }}"
-    state: "{{ item.state }}"
-  with_items:
-    - '{{ salt_packages }}'
-  when: INSTALL_FLAG == True
+    name: salt-minion
+    state: latest
+  when: SALT_INSTALL_FLAG == True and SALT_MINION_FLAG == True
+
+- name: Install Saltstack Master
+  apt:
+    update_cache: yes
+    name: salt-master
+    state: latest
+  when: SALT_INSTALL_FLAG == True and SALT_MASTER_FLAG == True
 
 - name: Include common Tasks
   include: common.yml
-  when: CONFIGURE_FLAG == True
+  when: SALT_CONFIGURE_FLAG == True
 ...
