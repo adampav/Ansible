@@ -78,7 +78,7 @@ def main(args):
         'ansible-playbook',
         '{0}/{1}.yml'.format(PLAYBOOK_PATH, playbook),
         '-u',
-        user
+        args.user or user
     ]
 
     password = def_run_parameters["password"]
