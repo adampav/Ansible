@@ -363,6 +363,22 @@ def read_saltstack(def_vars):
     read_dict["SALT_MINION_FLAG"] = query_yes_no("Salt Minion?")
     read_dict["SALT_MASTER_FLAG"] = query_yes_no("Salt Master?", default="no")
     read_dict["SALT_MASTER_IP"] = str(read_ip(custom_message=" for Salt Master"))
+
+    salt_packages = []
+
+    if read_dict["SALT_MASTER_FLAG"]:
+        salt_packages.append({
+            "name": "salt-master",
+            "state": "latest"
+        })
+
+    if read_dict["SALT_MINION_FLAG"]:
+        salt_packages.append({
+            "name": "salt-minion",
+            "state": "latest"
+        })
+
+    read_dict["salt_packages"] = salt_packages
     return read_dict
 
 

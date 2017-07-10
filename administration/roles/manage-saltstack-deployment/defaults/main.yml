@@ -7,4 +7,8 @@ SALT_CONFIGURE_FLAG: True
 SALT_MINION_CONFIG: "salt-minion.j2"
 SALT_MASTER_CONFIG: "salt-master.j2"
 SALT_MASTER_IP: "localhost"
+
+salt_packages:
+  - name: salt-minion
+    state: latest
 ...
