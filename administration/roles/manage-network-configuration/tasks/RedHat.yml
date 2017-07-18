@@ -2,7 +2,7 @@
 - name: Grab active interface
   setup: gather_subset='network'
 
-- name: Install python 2
+- name: Generate UUID
   raw: uuidgen "{{ primary_interface }}"
   register: iface_uuid
 
