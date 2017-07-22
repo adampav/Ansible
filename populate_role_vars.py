@@ -9,6 +9,8 @@ from pathlib import Path
 
 # TODO put this to configuration
 
+# TODO adopt userlog
+
 DEFAULTS_PATH = 'new_vm_defaults.json'
 ROLE_PATH = 'administration/roles'
 CUSTOM_ROLE_VARS = 'ansible-files/roles_var'
