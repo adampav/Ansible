@@ -2,6 +2,7 @@
 *.swp
 *.retry
 .idea
+__pycache__/
 env/
 ansible-files/
 populated_vars.json
