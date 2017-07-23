@@ -219,7 +219,7 @@ def read_fail2ban(def_vars):
 
 def read_iptables(def_vars):
 
-    # TODO fix bug on duplicate addition!
+    # TODO fix bug on duplicate addition! do not allow rules on the same port
 
     read_dict = dict()
     if query_yes_no(userlog.warn("Enable SSH?")):
@@ -339,12 +339,12 @@ def read_network_configuration(def_vars):
     # Validate IP Settings
     for ip_arg in ip_args:
         if ip_arg in def_vars:
-            print("\nDefault Value:\t{1}\tfor\t\"{0}\"\n".format(ip_arg, def_vars[ip_arg]))
-            if query_yes_no("Keep the default value?"):
+            print(userlog.info("\nDefault Value:\t{1}\tfor\t\"{0}\"\n".format(ip_arg, def_vars[ip_arg])))
+            if query_yes_no(userlog.warn("Keep the default value?")):
                 read_dict[ip_arg] = def_vars[ip_arg]
                 continue
         else:
-            print("\nNo default value for \"{0}\".".format(ip_arg))
+            print(userlog.warn("\nNo default value for \"{0}\".".format(ip_arg)))
             read_dict[ip_arg] = str(read_ip(custom_message=" for {0}".format(ip_arg)))
 
     return read_dict
@@ -457,7 +457,7 @@ def read_ssh_keys(def_vars):
         else:
             main_key_path = read_pub_key()
 
-    if query_yes_no(userlog.warn("Push this key to root user?")):
+    if query_yes_no(userlog.error("Install a key to ROOT user?")):
         if query_yes_no(userlog.warn("Same key as the one specified in \"main_key_path\"?")):
             read_dict["root_key_path"] = main_key_path
         else:
@@ -486,7 +486,7 @@ def read_sshd_configuration(def_vars):
         # VALIDATE Already Present vars
         priv_args = [elem for elem in def_vars["privileged_host"]
                      if HostExemption.validate(raise_f=False, **elem)
-                     and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
+                     and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?")]
 
         print(userlog.info("\nAll Privileged Hosts:\n"+json.dumps(def_vars["privileged_host"], indent=4)))
         if query_yes_no(userlog.warn("Do you want to insert more?")):
