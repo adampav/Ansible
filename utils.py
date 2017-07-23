@@ -15,18 +15,18 @@ class Colors:
 class UserLog:
     @staticmethod
     def info(format_string):
-        return "{0}[*]{1}{2}".format(Colors.GREEN, format_string, Colors.END)
+        return "{0}[*]{1}[*]{2}".format(Colors.GREEN, format_string, Colors.END)
 
     @staticmethod
     def warn(format_string, bold=True):
         if bold:
-            return "{0}{1}[*]{2}{3}".format(Colors.YELLOW, Colors.BOLD, format_string, Colors.END)
+            return "{0}{1}[*]{2}[*]{3}".format(Colors.YELLOW, Colors.BOLD, format_string, Colors.END)
         else:
-            return "{0}[*]{1}{2}".format(Colors.YELLOW, format_string, Colors.END)
+            return "{0}[*]{1}[*]{2}".format(Colors.YELLOW, format_string, Colors.END)
 
     @staticmethod
     def error(format_string):
-        return "{0}[*]{1}{2}".format(Colors.RED, format_string, Colors.END)
+        return "{0}[*]{1}[*]{2}".format(Colors.RED, format_string, Colors.END)
 
     def infopr(self, format_string):
         print(self.info(format_string))
