@@ -218,6 +218,9 @@ def read_fail2ban(def_vars):
 
 
 def read_iptables(def_vars):
+
+    # TODO fix bug on duplicate addition!
+
     read_dict = dict()
     if query_yes_no(userlog.warn("Enable SSH?")):
         # DEFINE SSH SERVICE
@@ -360,7 +363,7 @@ def read_packages(def_vars):
         # VALIDATE Already Present vars
         base_pack = [elem for elem in def_vars["base_packages"]
                      if Packages.validate(raise_f=False, **elem)
-                     and query_yes_no(userlog.info(json.dumps(elem, indent=4)+"\nKeep this?\n"))]
+                     and query_yes_no(userlog.info(json.dumps(elem, indent=4)+"\nKeep this?"))]
 
         print(userlog.warn("\nAll packages:\n"+json.dumps(def_vars["base_packages"], indent=4)))
 
@@ -387,7 +390,7 @@ def read_packages(def_vars):
         # VALIDATE Already Present vars
         extra_pack = [elem for elem in def_vars["extra_packages"]
                       if Packages.validate(raise_f=False, **elem)
-                      and query_yes_no(userlog.info(json.dumps(elem, indent=4)+"\nKeep this?\n"))]
+                      and query_yes_no(userlog.info(json.dumps(elem, indent=4)+"\nKeep this?"))]
 
         print(userlog.warn("\nAll packages:\n"+json.dumps(def_vars["extra_packages"], indent=4)))
 
