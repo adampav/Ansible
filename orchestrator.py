@@ -66,7 +66,7 @@ parser.add_argument('--playbook',
                     default=None)
 
 
-def main(args):
+def main():
     playbook = args.playbook
     if not playbook:
         playbook = select_playbook()
@@ -146,4 +146,4 @@ def main(args):
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    main(args)
+    main()
