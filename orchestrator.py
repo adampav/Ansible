@@ -2,12 +2,16 @@
 import ipaddress
 import os
 
+import time
+
 from populate_role_vars import main as populator
 from populate_role_vars import select_playbook
 from populate_role_vars import query_yes_no
 from populate_role_vars import POPULATED_VARS_OUTPUT
 from populate_role_vars import PLAYBOOK_PATH
 import argparse
+from utils import UserLog
+userlog = UserLog()
 
 
 def_run_parameters = {
@@ -70,13 +74,14 @@ def main():
     playbook = args.playbook
     if not playbook:
         playbook = select_playbook()
-        if args.populate_vars or query_yes_no("Populate Vars."):
-            populator(playbook=playbook)
+
+    if args.populate_vars or query_yes_no(userlog.info("Populate Vars?")):
+        populator(playbook=playbook)
 
     user = def_run_parameters["user"]
 
-    while args.interactive and query_yes_no("Change value?\n\"user\":\t{0}".format(user), default="no"):
-        user = input("Please enter the user to run Ansible as: >> ")
+    while args.interactive and query_yes_no(userlog.warn("Change value?\n\"user\":\t{0}".format(user)), default="no"):
+        user = input(userlog.error("Please enter the user to run Ansible as: >> "))
 
     # TODO read private key file
 
@@ -89,15 +94,17 @@ def main():
 
     password = def_run_parameters["password"]
 
-    while args.interactive and query_yes_no("Change value?\n\"password\":\t{0}".format(str(password)), default="no"):
-        password = query_yes_no("Password Authentication?")
+    while args.interactive and query_yes_no(userlog.warn("Change value?\n\"password\":\t{0}".format(str(password))),
+                                            default="no"):
+        password = query_yes_no(userlog.info("Password Authentication?"))
 
     if args.password or password:
         exec_list.append('-k')
 
     sudo = def_run_parameters["sudo"]
 
-    while args.interactive and query_yes_no("Change value?\n\"sudo\":\t{0}".format(str(sudo)), default="no"):
+    while args.interactive and query_yes_no(userlog.warn("Change value?\n\"sudo\":\t{0}".format(str(sudo))),
+                                            default="no"):
         sudo = query_yes_no("Elevate privileges?")
 
     if args.sudo or sudo:
@@ -105,12 +112,12 @@ def main():
 
     # TODO read inventory? / read IP ???
 
-    if args.interactive and query_yes_no("Read IP?"):
+    if args.interactive and query_yes_no(userlog.info("Read IP?")):
         exec_list.append("-i")
         ip_addr = None
         while not ip_addr:
             try:
-                ip_addr = ipaddress.ip_address(input("Enter IP address for target host: >>\t"))
+                ip_addr = ipaddress.ip_address(input(userlog.error("Enter IP address for target host: >>\t")))
             except ValueError:
                 print("Enter a valid IP!\n")
 
@@ -126,7 +133,7 @@ def main():
         elif args.limit:
             exec_list.append("-l")
             exec_list.append("'{0}'".format(args.limit))
-        elif query_yes_no("Do you want to run against all hosts in \"/etc/ansible/hosts\" ?"):
+        elif query_yes_no(userlog.error("Do you want to run against all hosts in \"/etc/ansible/hosts\" ?")):
             pass
         else:
             exit()
@@ -138,8 +145,9 @@ def main():
     for elem in exec_list:
         command += elem + ' '
 
-    print(command)
-    if args.debug and not query_yes_no("Do you want to execute the command?", default="no"):
+    print(userlog.info(command))
+    time.sleep(2)
+    if args.debug and not query_yes_no(userlog.warn("Do you want to execute the command?", default="no")):
         exit()
 
     os.system(command)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from utils import UserLog
 import json
 import yaml
 import os
@@ -9,6 +10,8 @@ from pathlib import Path
 
 # TODO put this to configuration
 
+# TODO adopt userlog
+userlog = UserLog()
 DEFAULTS_PATH = 'new_vm_defaults.json'
 ROLE_PATH = 'administration/roles'
 CUSTOM_ROLE_VARS = 'ansible-files/roles_var'
@@ -69,7 +72,7 @@ class HostExemption:
             priv_dict = {
                 "addr": input("Enter an IP Address for Privileged Host, Empty to Stop : >> "),
                 "id": priv_len,
-                "state": query_yes_no("State: Present?")
+                "state": query_yes_no(userlog.warn("State: Present?"))
             }
             if priv_dict["state"]:
                 priv_dict["state"] = "present"
@@ -135,8 +138,8 @@ class Packages:
         func_extra_packages = []
         while True:
             package_dict = {
-                "name": input("Enter Package Name, Empty to Stop : >> "),
-                "state": input("Enter the state of the package, Empty = Present : >> ") or "present"
+                "name": input(userlog.info("Enter Package Name, Empty to Stop : >>") + ' '),
+                "state": input(userlog.info("Enter the state of the package, Empty = Present : >>") + ' ') or "present"
             }
 
             if not package_dict["name"]:
@@ -179,9 +182,9 @@ def query_yes_no(question, default="yes"):
 
 
 def read_pub_key(key="main"):
-    key_path = None
+    key_path = input(userlog.info("Enter a file path for {0}_key: >>").format(key) + ' ')
     while not key_path or not Path(os.path.expanduser(key_path)).is_file():
-        key_path = input("Enter a file path for {0}_key: >> ".format(key))
+        key_path = input(userlog.error("Enter a file path for {0}_key: >>").format(key) + ' ')
 
     return key_path
 
@@ -191,13 +194,13 @@ def read_ip(custom_message="", accept_none=False):
     ip_input = None
     while not ip_addr:
         try:
-            ip_input = input("Please enter an IP address{0}: >> ".format(custom_message))
+            ip_input = input(userlog.info("Please enter an IP address{0}: >>").format(custom_message) + ' ')
             ip_addr = ipaddress.ip_address(ip_input)
         except ValueError:
             if accept_none and not ip_input:
                 return None
             else:
-                print("Bad IP Format. Try again!\n\n")
+                print(userlog.error("Bad IP Format. Try again!\n\n"))
 
     return ip_addr
 
@@ -215,8 +218,11 @@ def read_fail2ban(def_vars):
 
 
 def read_iptables(def_vars):
+
+    # TODO fix bug on duplicate addition! do not allow rules on the same port
+
     read_dict = dict()
-    if query_yes_no("SSH?"):
+    if query_yes_no(userlog.warn("Enable SSH?")):
         # DEFINE SSH SERVICE
         ssh_service = dict()
         ssh_service["port"] = 22
@@ -235,7 +241,7 @@ def read_iptables(def_vars):
             read_dict["restricted_services"] = [elem for elem in def_vars["restricted_services"]
                                                 if elem["service"] != "ssh" and elem["port"] != 22]
 
-        if query_yes_no("Restrict SSH?"):
+        if query_yes_no(userlog.warn("Restrict SSH?")):
             ssh_service["sources"] = list()
             while True:
                 ip_addr = read_ip(custom_message=" to allow SSH from", accept_none=True)
@@ -257,13 +263,13 @@ def read_iptables(def_vars):
                 read_dict["public_services"].append(ssh_service)
 
     while True:
-        print("\nPlease Enter New Service\n")
+        print(userlog.info("\nPlease Enter New Service\n"))
         service = dict()
         try:
-            service["port"] = int(input("Enter Port number: >> "))
+            service["port"] = int(input(userlog.info("Enter Port number: >>") + ' '))
         except ValueError:
             break
-        service["service"] = input("Enter Service Name: >> ")
+        service["service"] = input(userlog.info("Enter Service Name: >> ") + ' ')
         if not service["service"]:
             break
 
@@ -272,6 +278,7 @@ def read_iptables(def_vars):
         elif query_yes_no("UDP?"):
             service["protocol"] = "udp"
         else:
+            print(userlog.error("Ignoring Service\n"))
             continue
 
         service["iface"] = "{{ iface }}"
@@ -303,8 +310,8 @@ def read_iptables(def_vars):
 
             # TODO Refactor this to a class, like Packages-Hosts
 
-    read_dict["RELOAD_FLAG"] = query_yes_no("ATTENTION!\nReload the rules immediately?\n"
-                                            "This might result in a loss of connectivity",
+    read_dict["RELOAD_FLAG"] = query_yes_no(userlog.error("ATTENTION!\nReload the rules immediately?\n"
+                                                          "This might result in a loss of connectivity"),
                                             default="no")
 
     # TODO Ask for application of FW rules
@@ -332,12 +339,12 @@ def read_network_configuration(def_vars):
     # Validate IP Settings
     for ip_arg in ip_args:
         if ip_arg in def_vars:
-            print("\nDefault Value:\t{1}\tfor\t\"{0}\"\n".format(ip_arg, def_vars[ip_arg]))
-            if query_yes_no("Keep the default value?"):
+            print(userlog.info("\nDefault Value:\t{1}\tfor\t\"{0}\"\n".format(ip_arg, def_vars[ip_arg])))
+            if query_yes_no(userlog.warn("Keep the default value?")):
                 read_dict[ip_arg] = def_vars[ip_arg]
                 continue
         else:
-            print("\nNo default value for \"{0}\".".format(ip_arg))
+            print(userlog.warn("\nNo default value for \"{0}\".".format(ip_arg)))
             read_dict[ip_arg] = str(read_ip(custom_message=" for {0}".format(ip_arg)))
 
     return read_dict
@@ -346,34 +353,36 @@ def read_network_configuration(def_vars):
 def read_packages(def_vars):
     read_dict = dict()
 
+    # TODO ditch current logic. Ask for the entire dictionary Keep It ? Else check each one. Consider BASE only?
+
     # UPGRADE SYSTEM
-    read_dict["UPGRADE_DIST_FLAG"] = query_yes_no("Do you want to update/upgrade the system?")
+    read_dict["UPGRADE_DIST_FLAG"] = query_yes_no(userlog.warn("Do you want to update/upgrade the system?"))
 
     # READ BASE PACKAGES
     if "base_packages" in def_vars:
         # VALIDATE Already Present vars
         base_pack = [elem for elem in def_vars["base_packages"]
                      if Packages.validate(raise_f=False, **elem)
-                     and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
+                     and query_yes_no(userlog.info(json.dumps(elem, indent=4)+"\nKeep this?"))]
 
-        print("\nAll packages:\n"+json.dumps(def_vars["base_packages"], indent=4))
+        print(userlog.warn("\nAll packages:\n"+json.dumps(def_vars["base_packages"], indent=4)))
 
-        if query_yes_no("Do you want to insert more?"):
-            print("\nEnter Packages.\n")
+        if query_yes_no(userlog.info("Do you want to insert more BASE packages?")):
+            print(userlog.warn("\nEnter Additional Base Packages.\n"))
             for elem in Packages.read_extra_packages():
                 base_pack.append(elem)
 
-        print("\nAll packages:\n"+json.dumps(def_vars["base_packages"], indent=4))
+        print(userlog.warn("\nAll packages:\n"+json.dumps(def_vars["base_packages"], indent=4)))
     else:
         base_pack = []
-        print("\nNo packages. Please enter package name. Or enter empty string to stop\n")
+        print(userlog.error("\nNo BASE packages. Please enter package name. Or enter empty string to stop\n"))
         for elem in Packages.read_extra_packages():
             base_pack.append(elem)
 
     if base_pack:
         read_dict["base_packages"] = base_pack
     else:
-        if query_yes_no("Install NO base packages?"):
+        if query_yes_no(userlog.warn("Install NO BASE packages?")):
             read_dict["base_packages"] = base_pack
 
     # READ EXTRA PACKAGES
@@ -381,11 +390,11 @@ def read_packages(def_vars):
         # VALIDATE Already Present vars
         extra_pack = [elem for elem in def_vars["extra_packages"]
                       if Packages.validate(raise_f=False, **elem)
-                      and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
+                      and query_yes_no(userlog.info(json.dumps(elem, indent=4)+"\nKeep this?"))]
 
-        print("\nAll packages:\n"+json.dumps(def_vars["extra_packages"], indent=4))
+        print(userlog.warn("\nAll packages:\n"+json.dumps(def_vars["extra_packages"], indent=4)))
 
-        if query_yes_no("Do you want to insert more?"):
+        if query_yes_no("Do you want to insert more EXTRA packages?"):
             print("\nEnter Packages.\n")
             for elem in Packages.read_extra_packages():
                 extra_pack.append(elem)
@@ -409,10 +418,10 @@ def read_packages(def_vars):
 
 def read_saltstack(def_vars):
     read_dict = dict()
-    read_dict["SALT_INSTALL_FLAG"] = query_yes_no("Install Salt?", default="no")
-    read_dict["SALT_CONFIGURE_FLAG"] = query_yes_no("Configure Salt?")
-    read_dict["SALT_MINION_FLAG"] = query_yes_no("Salt Minion?")
-    read_dict["SALT_MASTER_FLAG"] = query_yes_no("Salt Master?", default="no")
+    read_dict["SALT_INSTALL_FLAG"] = query_yes_no(userlog.warn("Install Salt?"), default="no")
+    read_dict["SALT_CONFIGURE_FLAG"] = query_yes_no(userlog.info("Configure Salt?"))
+    read_dict["SALT_MINION_FLAG"] = query_yes_no(userlog.info("Salt Minion?"))
+    read_dict["SALT_MASTER_FLAG"] = query_yes_no(userlog.warn("Salt Master?"), default="no")
     read_dict["SALT_MASTER_IP"] = str(read_ip(custom_message=" for Salt Master"))
 
     salt_packages = []
@@ -437,28 +446,29 @@ def read_ssh_keys(def_vars):
     read_dict = dict()
     # Validate Key Path
     if "main_key_path" not in def_vars or not Path(os.path.expanduser(def_vars["main_key_path"])).is_file():
-        print("default \"main_key_path\" points to an invalid file or does not exist. Ignoring\n")
+        print(userlog.error("default \"main_key_path\" points to an invalid file or does not exist. Ignoring\n"))
 
         main_key_path = read_pub_key()
 
     else:
-        print("Default value for \"main_key_path\" points to %s.\n" % def_vars["main_key_path"])
-        if query_yes_no("Keep the default value?"):
+        print(userlog.info("Default value for \"main_key_path\" points to %s.\n" % def_vars["main_key_path"]))
+        if query_yes_no(userlog.warn("Keep the default value?")):
             main_key_path = def_vars["main_key_path"]
         else:
             main_key_path = read_pub_key()
 
-    if query_yes_no("Root Key?"):
-        if query_yes_no("Same key as the one specified in \"main_key_path\"?"):
+    if query_yes_no(userlog.error("Install a key to ROOT user?")):
+        if query_yes_no(userlog.warn("Same key as the one specified in \"main_key_path\"?")):
             read_dict["root_key_path"] = main_key_path
         else:
             if "root_key_path" not in def_vars or not Path(os.path.expanduser(def_vars["root_key_path"])).is_file():
-                print("default \"root_key_path\" points to an invalid file or does not exist. Ignoring\n")
+                print(userlog.error("default \"root_key_path\" points to an invalid file or does not exist."
+                                    "Ignoring\n"))
 
                 root_key_path = read_pub_key(key="root")
             else:
-                print("Default value for \"root_key_path\" points to %s.\n" % def_vars["root_key_path"])
-                if query_yes_no("Keep the default value?"):
+                print(userlog.info("Default value for \"root_key_path\" points to %s.\n" % def_vars["root_key_path"]))
+                if query_yes_no(userlog.warn("Keep the default value?")):
                     root_key_path = def_vars["root_key_path"]
                 else:
                     root_key_path = read_pub_key(key="root")
@@ -476,11 +486,11 @@ def read_sshd_configuration(def_vars):
         # VALIDATE Already Present vars
         priv_args = [elem for elem in def_vars["privileged_host"]
                      if HostExemption.validate(raise_f=False, **elem)
-                     and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?\n")]
+                     and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?")]
 
-        print("\nAll Hosts:\n"+json.dumps(def_vars["privileged_host"], indent=4))
-        if query_yes_no("Do you want to insert more?"):
-            print("\nPlease enter IPs. Or enter empty string to stop\n")
+        print(userlog.info("\nAll Privileged Hosts:\n"+json.dumps(def_vars["privileged_host"], indent=4)))
+        if query_yes_no(userlog.warn("Do you want to insert more?")):
+            print(userlog.info("\nPlease enter an IP. Or enter empty string to stop\n"))
             for elem in HostExemption.read_priviliged_hosts(priv_len=len(priv_args)+1):
                 priv_args.append(elem)
 
@@ -488,7 +498,7 @@ def read_sshd_configuration(def_vars):
 
     else:
         priv_args = []
-        print("\nNo privileged host. Please enter IPs. Or enter empty string to stop\n")
+        print(userlog.warn("\nNo privileged host. Please enter IPs. Or enter empty string to stop\n"))
         for elem in HostExemption.read_priviliged_hosts():
             priv_args.append(elem)
 
@@ -501,7 +511,7 @@ def select_roles():
     try:
         with open(ROLES, 'r') as f:
             roles = list(json.load(f))
-        print("\nAvailable Roles are:\n"+json.dumps(roles, indent=4))
+        print(userlog.info("\nAvailable Roles are:\n"+json.dumps(roles, indent=4)))
 
         chosen_roles = []
 
@@ -517,17 +527,17 @@ def select_roles():
                 if chosen_roles:
                     break
             elif int(choice) not in range(0, len(roles)):
-                print("\nInvalid Choice\n")
+                print(userlog.error("\nInvalid Choice\n"))
                 continue
             else:
                 chosen_roles.append(roles[int(choice)])
                 roles.remove(roles[int(choice)])
 
-        print(json.dumps(list(set(chosen_roles)), indent=4))
+        print(userlog.info(json.dumps(list(set(chosen_roles)), indent=4)))
 
         return list(set(chosen_roles))
     except IOError:
-        print("No Roles specified. Exiting")
+        print(userlog.error("No Roles specified. Exiting"))
         return None
 
 
@@ -578,7 +588,7 @@ def read_role_vars(role=None):
             print("Custom Role VARS from file: " + CUSTOM_ROLE_VARS + "/{0}/my_vars.yml\n".format(role)
                   + json.dumps(role_vars, indent=4) + "\n\n")
     except IOError:
-        print("File: " + CUSTOM_ROLE_VARS + "/{0}/my_vars.yml not found.".format(role))
+        print(userlog.error("File: " + CUSTOM_ROLE_VARS + "/{0}/my_vars.yml not found.".format(role)))
         role_vars = dict()
 
     if role == "manage-beats":
@@ -625,8 +635,8 @@ def read_role_vars(role=None):
 
     with open(CUSTOM_ROLE_VARS + "/{0}/my_vars.yml".format(role), 'w') as f:
         yaml.dump(role_vars, f)
-    print("Printing to File: " + CUSTOM_ROLE_VARS + "/{0}/my_vars.yml\n".format(role)
-          + json.dumps(role_vars, indent=4) + "\n\n")
+    print(userlog.warn("Printing to File: " + CUSTOM_ROLE_VARS + "/{0}/my_vars.yml\n".format(role)
+          + json.dumps(role_vars, indent=4) + "\n\n"))
 
     return role_vars
 
@@ -634,7 +644,7 @@ def read_role_vars(role=None):
 def main(playbook=None, temp_playbook=False):
     roles = None
     # Case 1 -> Playbooks available
-    if playbook or query_yes_no("Select a playbook?"):
+    if playbook or query_yes_no(userlog.warn("Select a playbook?")):
         if not playbook:
             playbook = select_playbook()
         try:
@@ -642,24 +652,24 @@ def main(playbook=None, temp_playbook=False):
                 role_yaml = yaml.load(f)
                 roles = role_yaml[1]["roles"]
         except IOError:
-            print("Problem extracting roles from playbook")
+            print(userlog.error("Problem extracting roles from playbook"))
             playbook = None
 
     if not roles and not temp_playbook and not query_yes_no("Select Roles?"):
-        print("No valid Options. Exiting")
+        print(userlog.error("No valid Options. Exiting"))
         return 0
     elif not roles:
         roles = select_roles()
     else:
         pass
 
-    print(json.dumps(roles, indent=4))
+    print(userlog.info(json.dumps(roles, indent=4)))
 
     vm_vars = {}
     for role in roles:
         vm_vars.update(read_role_vars(role=role))
 
-    print("\nContents of {0} are:\n".format(POPULATED_VARS_OUTPUT) + json.dumps(vm_vars, indent=4))
+    print(userlog.info("\nContents of {0} are:\n".format(POPULATED_VARS_OUTPUT) + json.dumps(vm_vars, indent=4)))
 
     with open(POPULATED_VARS_OUTPUT, 'w') as f:
         json.dump(vm_vars, f, indent=4)
