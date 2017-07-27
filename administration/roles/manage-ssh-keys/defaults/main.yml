@@ -8,7 +8,7 @@ ssh_vars:
     state: "{{ state }}"
     keys:
       - "{{ root_key_path }}"
-  - username:
+  - username: "{{ custom_user }}"
     state: "{{ state }}"
     keys:
       - "{{ main_key_path }}"
