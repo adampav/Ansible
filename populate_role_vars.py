@@ -181,12 +181,15 @@ def query_yes_no(question, default="yes"):
                              "(or 'y' or 'n').\n")
 
 
-def read_pub_key(key="main"):
-    key_path = input(userlog.info("Enter a file path for {0}_key: >>").format(key) + ' ')
-    while not key_path or not Path(os.path.expanduser(key_path)).is_file():
-        key_path = input(userlog.error("Enter a file path for {0}_key: >>").format(key) + ' ')
-
-    return key_path
+def read_pub_key(key="some", break_flag=True):
+    key_path = input(userlog.info("Enter a file path for {0} user's key: >>").format(key) + ' ')
+    while True:
+        if not key_path and break_flag:
+            return None
+        elif not Path(os.path.expanduser(key_path)).is_file():
+            key_path = input(userlog.error("Enter a file path for {0} user's key: >>").format(key) + ' ')
+        else:
+            return key_path
 
 
 def read_ip(custom_message="", accept_none=False):
@@ -445,37 +448,65 @@ def read_saltstack(def_vars):
 def read_ssh_keys(def_vars):
     read_dict = dict()
     # Validate Key Path
-    if "main_key_path" not in def_vars or not Path(os.path.expanduser(def_vars["main_key_path"])).is_file():
-        print(userlog.error("default \"main_key_path\" points to an invalid file or does not exist. Ignoring\n"))
-
-        main_key_path = read_pub_key()
+    if "exec_keys" in def_vars:
+        exec_keys = [key for key in def_vars["keys"] if Path(os.path.expanduser(key)).is_file()
+                     and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
 
     else:
-        print(userlog.info("Default value for \"main_key_path\" points to %s.\n" % def_vars["main_key_path"]))
-        if query_yes_no(userlog.warn("Keep the default value?")):
-            main_key_path = def_vars["main_key_path"]
-        else:
-            main_key_path = read_pub_key()
+        exec_keys = []
 
-    if query_yes_no(userlog.error("Install a key to ROOT user?")):
-        if query_yes_no(userlog.warn("Same key as the one specified in \"main_key_path\"?")):
-            read_dict["root_key_path"] = main_key_path
-        else:
-            if "root_key_path" not in def_vars or not Path(os.path.expanduser(def_vars["root_key_path"])).is_file():
-                print(userlog.error("default \"root_key_path\" points to an invalid file or does not exist."
-                                    "Ignoring\n"))
+    print(userlog.info("Current Public Keys that will be installed for the user you will execute Ansible as:\n"
+          + json.dumps(exec_keys, indent=4)))
 
-                root_key_path = read_pub_key(key="root")
-            else:
-                print(userlog.info("Default value for \"root_key_path\" points to %s.\n" % def_vars["root_key_path"]))
-                if query_yes_no(userlog.warn("Keep the default value?")):
-                    root_key_path = def_vars["root_key_path"]
-                else:
-                    root_key_path = read_pub_key(key="root")
+    print(userlog.warn("Reading Additional Keys. Enter \"empty\" string to stop."))
 
-            read_dict["root_key_path"] = root_key_path
+    key = None
+    while not key:
+        key = read_pub_key(key="exec user")
+        if key:
+            exec_keys.append(key)
+            key = None
 
-    read_dict["main_key_path"] = main_key_path
+    # Keys for Root
+    root_keys = []
+    if not query_yes_no(userlog.warn("Will you execute as ROOT?"))\
+            and query_yes_no(userlog.error("Install key to ROOT?")):
+
+        if "root_keys" in def_vars:
+            root_keys = [key for key in def_vars["keys"] if Path(os.path.expanduser(key)).is_file()
+                         and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
+
+        print(userlog.info("Current Public Keys that will be installed for ROOT:\n"
+                           + json.dumps(root_keys, indent=4)))
+
+        print(userlog.warn("Reading Additional Keys. Enter \"empty\" string to stop."))
+
+        key = None
+        while not key:
+            key = read_pub_key(key="root user")
+            if key:
+                exec_keys.append(key)
+                key = None
+
+    custom_keys = []
+    if "custom_keys" in def_vars:
+        custom_keys = [key for key in def_vars["keys"] if Path(os.path.expanduser(key)).is_file()
+                       and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
+
+    # TODO this part need a bit of refinement
+    print(userlog.info("Current Public Keys that will be installed for the user:\n"
+                       + json.dumps(custom_keys, indent=4)))
+
+    key = None
+    while not key:
+        key = read_pub_key(key="Custom user")
+        if key:
+            custom_keys.append(key)
+            key = None
+
+    read_dict["exec_keys"] = exec_keys
+    read_dict["root_keys"] = root_keys
+    read_dict["custom_keys"] = custom_keys
 
     return read_dict
 
@@ -489,6 +520,7 @@ def read_sshd_configuration(def_vars):
                      and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?")]
 
         print(userlog.info("\nAll Privileged Hosts:\n"+json.dumps(priv_args, indent=4)))
+
         if query_yes_no(userlog.warn("Do you want to insert more?")):
             print(userlog.info("\nPlease enter an IP. Or enter empty string to stop\n"))
             for elem in HostExemption.read_priviliged_hosts(priv_len=len(priv_args)+1):
