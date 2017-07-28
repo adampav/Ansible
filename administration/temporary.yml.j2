@@ -1,0 +1,28 @@
+---
+- hosts: 127.0.0.1
+  gather_facts: false
+  roles:
+    - manage-ssh-known_hosts
+
+- hosts: all
+  {% if become %}
+  become: True
+  {%  else %}
+  become: False
+  {% endif %}
+  {% if gather_facts %}
+  gather_facts: True
+  {%  else %}
+  gather_facts: False
+  {% endif %}
+  vars:
+  roles:
+    {% for role in roles %}
+    - {{ role }}
+    {% endfor %}
+  tasks:
+    {% if reboot %}
+    - name: reboot the system after playbook execution
+      command: /sbin/shutdown -r 1 "Ansible Calling for a System Reboot"
+    {% endif %}
+...

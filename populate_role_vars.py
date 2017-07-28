@@ -7,6 +7,7 @@ import os
 import sys
 import ipaddress
 from pathlib import Path
+from jinja2 import Environment, FileSystemLoader
 
 # TODO put this to configuration
 
@@ -612,9 +613,18 @@ def select_playbook():
     return chosen_playbook
 
 
-def generate_temporary_playbook():
+def generate_temporary_playbook(roles=[], become=True, gather_facts=False, reboot=False):
     # TODO : IMPLEMENT based on jinja2 template
-    pass
+    env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.realpath(__file__))))
+    env.trim_blocks = True
+    env.lstrip_blocks = True
+    temporary_playbook = env.get_template('administration/temporary.yml.j2').render(roles=roles,
+                                                                                    become=become,
+                                                                                    gather_facts=gather_facts,
+                                                                                    reboot=reboot)
+
+    with open('administration/temporary.yml', 'w') as f:
+        f.write(temporary_playbook)
 
 
 def read_role_vars(role=None):
@@ -700,6 +710,7 @@ def main(playbook=None, temp_playbook=False):
         return 0
     elif not roles:
         roles = select_roles()
+        generate_temporary_playbook(roles=roles, become=True, gather_facts=False, reboot=True)
     else:
         pass
 
