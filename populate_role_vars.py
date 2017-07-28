@@ -449,60 +449,68 @@ def read_ssh_keys(def_vars):
     read_dict = dict()
     # Validate Key Path
     if "exec_keys" in def_vars:
-        exec_keys = [key for key in def_vars["keys"] if Path(os.path.expanduser(key)).is_file()
+        exec_keys = [key for key in def_vars["exec_keys"] if Path(os.path.expanduser(key)).is_file()
                      and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
 
     else:
         exec_keys = []
 
     print(userlog.info("Current Public Keys that will be installed for the user you will execute Ansible as:\n"
-          + json.dumps(exec_keys, indent=4)))
+          + json.dumps(exec_keys, indent=4))+"\n")
 
     print(userlog.warn("Reading Additional Keys. Enter \"empty\" string to stop."))
 
-    key = None
-    while not key:
+    while True:
         key = read_pub_key(key="exec user")
         if key:
             exec_keys.append(key)
             key = None
+        else:
+            break
 
     # Keys for Root
     root_keys = []
-    if not query_yes_no(userlog.warn("Will you execute as ROOT?"))\
-            and query_yes_no(userlog.error("Install key to ROOT?")):
+    if query_yes_no(userlog.warn("Will you execute as ROOT?")):
+        print(userlog.error("Beware! The keys you have specified for the exec user will be installed to Root")+"\n")
+
+    elif query_yes_no(userlog.error("Install key to ROOT?")):
 
         if "root_keys" in def_vars:
-            root_keys = [key for key in def_vars["keys"] if Path(os.path.expanduser(key)).is_file()
+            root_keys = [key for key in def_vars["root_keys"] if Path(os.path.expanduser(key)).is_file()
                          and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
 
         print(userlog.info("Current Public Keys that will be installed for ROOT:\n"
                            + json.dumps(root_keys, indent=4)))
 
-        print(userlog.warn("Reading Additional Keys. Enter \"empty\" string to stop."))
+        print(userlog.warn("\nReading Additional Keys. Enter \"empty\" string to stop."))
 
-        key = None
-        while not key:
+        while True:
             key = read_pub_key(key="root user")
             if key:
                 exec_keys.append(key)
                 key = None
+            else:
+                break
+
+    else:
+        pass
 
     custom_keys = []
     if "custom_keys" in def_vars:
-        custom_keys = [key for key in def_vars["keys"] if Path(os.path.expanduser(key)).is_file()
+        custom_keys = [key for key in def_vars["custom_keys"] if Path(os.path.expanduser(key)).is_file()
                        and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
 
     # TODO this part need a bit of refinement
     print(userlog.info("Current Public Keys that will be installed for the user:\n"
                        + json.dumps(custom_keys, indent=4)))
 
-    key = None
     while not key:
         key = read_pub_key(key="Custom user")
         if key:
             custom_keys.append(key)
             key = None
+        else:
+            break
 
     read_dict["exec_keys"] = exec_keys
     read_dict["root_keys"] = root_keys
