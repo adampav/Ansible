@@ -5,7 +5,7 @@ import os
 import time
 
 from populate_role_vars import main as populator
-from populate_role_vars import select_playbook
+from populate_role_vars import select_playbook, select_roles, generate_temporary_playbook
 from populate_role_vars import query_yes_no
 from populate_role_vars import POPULATED_VARS_OUTPUT
 from populate_role_vars import PLAYBOOK_PATH
@@ -20,7 +20,8 @@ def_run_parameters = {
     "sudo": False,
     "interactive": False,
     "populate_vars": False,
-    "debug": False
+    "debug": False,
+    "roles": False
 }
 
 parser = argparse.ArgumentParser(description="Orchestrator is a cool wrapper for using Ansible :) ")
@@ -69,13 +70,25 @@ parser.add_argument('--playbook',
                     help='Provide playbook.',
                     default=None)
 
+parser.add_argument('--roles',
+                    help='Choose from a list of Roles.',
+                    default=def_run_parameters["roles"],
+                    action='store_true')
+
 
 def main():
     playbook = args.playbook
     if not playbook:
-        playbook = select_playbook()
+        if not args.roles and query_yes_no(userlog.warn("Select a playbook?")):
+            playbook = select_playbook()
+        elif args.roles or query_yes_no(userlog.warn("Select roles?")):
+            print(userlog.error("=== Creating Custom Playbook ==="))
+            generate_temporary_playbook()
+            playbook = "temporary"
+        else:
+            exit()
 
-    if args.populate_vars or query_yes_no(userlog.info("Populate Vars?")):
+    if args.populate_vars or query_yes_no(userlog.info("Populate Vars?"), default="no"):
         populator(playbook=playbook)
 
     user = def_run_parameters["user"]

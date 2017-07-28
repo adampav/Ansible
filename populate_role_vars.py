@@ -613,15 +613,23 @@ def select_playbook():
     return chosen_playbook
 
 
-def generate_temporary_playbook(roles=[], become=True, gather_facts=False, reboot=False):
-    # TODO : IMPLEMENT based on jinja2 template
+def generate_temporary_playbook(roles=None, become=True, gather_facts=False, reboot=False):
+    JINJA_FILE = 'administration/temporary.yml.j2'
+    jinja_args = {
+        "become": query_yes_no(userlog.warn("Become?")),
+        "gather_facts": query_yes_no(userlog.warn("Gather Facts?"), default="no"),
+        "reboot": query_yes_no(userlog.error("Reboot after the execution?"), default="no")
+    }
+    if not roles:
+        roles = select_roles()
+
     env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.realpath(__file__))))
     env.trim_blocks = True
     env.lstrip_blocks = True
-    temporary_playbook = env.get_template('administration/temporary.yml.j2').render(roles=roles,
-                                                                                    become=become,
-                                                                                    gather_facts=gather_facts,
-                                                                                    reboot=reboot)
+    temporary_playbook = env.get_template(JINJA_FILE).render(roles=roles,
+                                                             become=jinja_args["become"],
+                                                             gather_facts=jinja_args["gather_facts"],
+                                                             reboot=jinja_args["reboot"])
 
     with open('administration/temporary.yml', 'w') as f:
         f.write(temporary_playbook)
@@ -709,7 +717,6 @@ def main(playbook=None, temp_playbook=False):
         print(userlog.error("No valid Options. Exiting"))
         return 0
     elif not roles:
-        roles = select_roles()
         generate_temporary_playbook(roles=roles, become=True, gather_facts=False, reboot=True)
     else:
         pass
