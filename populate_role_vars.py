@@ -488,7 +488,7 @@ def read_sshd_configuration(def_vars):
                      if HostExemption.validate(raise_f=False, **elem)
                      and query_yes_no(json.dumps(elem, indent=4)+"\nKeep this?")]
 
-        print(userlog.info("\nAll Privileged Hosts:\n"+json.dumps(def_vars["privileged_host"], indent=4)))
+        print(userlog.info("\nAll Privileged Hosts:\n"+json.dumps(priv_args, indent=4)))
         if query_yes_no(userlog.warn("Do you want to insert more?")):
             print(userlog.info("\nPlease enter an IP. Or enter empty string to stop\n"))
             for elem in HostExemption.read_priviliged_hosts(priv_len=len(priv_args)+1):
