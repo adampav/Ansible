@@ -1,11 +1,11 @@
 ---
-- name: Install ssh keys
+- name: Install/Remove ssh keys for "{{ item.0.username }}"
   authorized_key:
     user: "{{ item.0.username }}"
-    state: "{{ item.0.state }}"
-    key: "{{ lookup('file', item.1) }}"
-  when: item.1
+    state: "{{ item.1.state | default('{{ default_state }}') }}"
+    key: "{{ lookup('file', item.1.file) }}"
+  when: item.0.username is defined and item.0.username
   with_subelements:
-    - '{{ ssh_vars }}'
-    - keys
+    - "{{ all_users }}"
+    - user_keys
 ...

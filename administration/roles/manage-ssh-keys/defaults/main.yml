@@ -1,15 +1,32 @@
 ---
 # defaults vars file for manage-ssh-keys
-root_key_path:
-custom_user: "{{ ansible_user | default('{{ ansible_user_id }}') }}"
-state: present
-ssh_vars:
-  - username: root
-    state: "{{ state }}"
-    keys:
-      - "{{ root_key_path }}"
+default_state: "present"
+exec_user: "{{ ansible_user | default('{{ ansible_user_id }}') }}"
+custom_user:
+exec_user_keys:
+  - file: "~/.ssh/id_rsa.pub"
+    state: "present"
+
+  - file: "~/.ssh/apavlidis_cl.pub"
+    state: "absent"
+
+root_keys:
+  - file: "~/.ssh/id_rsa.pub"
+    state: "present"
+
+  - file: "~/.ssh/apavlidis_cl.pub"
+    state: "absent"
+
+custom_user_keys:
+  -
+
+all_users:
+  - username: "root"
+    user_keys: "{{ root_keys }}"
+
+  - username: "{{ exec_user }}"
+    user_keys: "{{ exec_user_keys }}"
+
   - username: "{{ custom_user }}"
-    state: "{{ state }}"
-    keys:
-      - "{{ main_key_path }}"
+    user_keys: "{{ custom_user_keys }}"
 ...
