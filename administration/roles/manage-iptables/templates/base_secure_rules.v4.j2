@@ -52,7 +52,8 @@
 {% for source in item.sources %}
 -A INPUT -s {{ source }} -i {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate NEW,ESTABLISHED -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT
 {% endfor %}
--A OUTPUT -d {{ source }} -o {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate ESTABLISHED -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT
+-A OUTPUT -o {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate ESTABLISHED -m {{ item.protocol }} --sport {{ item.port }} -j ACCEPT
+{% endif %}
 {% endfor %}
 {% endif %}
 
