@@ -40,11 +40,19 @@
 # CUSTOM restricted Services
 {% if restricted_services %}
 {% for item in restricted_services %}
+{% if not item.direction or item.direction == "out" %}
+
+# ALLOW OUT - {{ item.service }}
+{% for source in item.sources %}
+-A OUTPUT -d {{ source }} -o {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate NEW,ESTABLISHED -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT
+{% endfor %}
+-A INPUT -i {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate ESTABLISHED -m {{ item.protocol }} --sport {{ item.port }} -j ACCEPT
+{% else %}
 # ALLOW IN - {{ item.service }}
 {% for source in item.sources %}
 -A INPUT -s {{ source }} -i {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate NEW,ESTABLISHED -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT
 {% endfor %}
--A OUTPUT -o {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate ESTABLISHED -m {{ item.protocol }} --sport {{ item.port }} -j ACCEPT
+-A OUTPUT -d {{ source }} -o {{ item.iface }} -p {{ item.protocol }} -m conntrack --ctstate ESTABLISHED -m {{ item.protocol }} --dport {{ item.port }} -j ACCEPT
 {% endfor %}
 {% endif %}
 
