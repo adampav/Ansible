@@ -222,10 +222,27 @@ def read_fail2ban(def_vars):
 
 
 def read_iptables(def_vars):
-
     # TODO fix bug on duplicate addition! do not allow rules on the same port
-
     read_dict = dict()
+    # Filter old rules in public_services
+    try:
+        read_dict["public_services"] = [elem for elem in def_vars["public_services"]
+                                        if (elem["service"] == "ssh" and elem["port"] == 22)
+                                        or query_yes_no(userlog.warn("Keep this public service?\n" +
+                                                                     json.dumps(elem, indent=4)))]
+    except KeyError:
+        read_dict["public_services"] = list()
+
+    # Filter old rules in restricted_services
+    read_dict["restricted_services"] = [elem for elem in def_vars["restricted_services"]
+                                        if (elem["service"] == "ssh" and elem["port"] == 22)
+                                        or query_yes_no(userlog.warn("Keep this restricted service?\n" +
+                                                                     json.dumps(elem, indent=4)))]
+    try:
+        pass
+    except KeyError:
+        read_dict["restricted_services"] = list()
+
     if query_yes_no(userlog.warn("Enable SSH?")):
         # DEFINE SSH SERVICE
         ssh_service = dict()
@@ -236,14 +253,14 @@ def read_iptables(def_vars):
         ssh_service["direction"] = "in"
 
         # REMOVE OLD SSH RULES from public_services
-        if "public_services" in def_vars:
-            read_dict["public_services"] = [elem for elem in def_vars["public_services"]
-                                            if elem["service"] != "ssh" and elem["port"] != 22]
+        read_dict["public_services"] = [elem for elem in read_dict["public_services"]
+                                        if elem["service"] != "ssh"
+                                        and elem["port"] != 22]
 
         # REMOVE OLD SSH RULES from restricted_services
-        if "restricted_services" in def_vars:
-            read_dict["restricted_services"] = [elem for elem in def_vars["restricted_services"]
-                                                if elem["service"] != "ssh" and elem["port"] != 22]
+        read_dict["restricted_services"] = [elem for elem in read_dict["restricted_services"]
+                                            if elem["service"] != "ssh"
+                                            and elem["port"] != 22]
 
         if query_yes_no(userlog.warn("Restrict SSH?")):
             ssh_service["sources"] = list()
@@ -254,17 +271,9 @@ def read_iptables(def_vars):
                 else:
                     ssh_service["sources"].append(str(ip_addr))
 
-            try:
-                read_dict["restricted_services"] = def_vars["restricted_services"]
-            except KeyError:
-                read_dict["restricted_services"] = list()
-                read_dict["restricted_services"].append(ssh_service)
+            read_dict["restricted_services"].append(ssh_service)
         else:
-            try:
-                read_dict["public_services"] = def_vars["public_services"]
-            except KeyError:
-                read_dict["public_services"] = list()
-                read_dict["public_services"].append(ssh_service)
+            read_dict["public_services"].append(ssh_service)
 
     while True:
         print(userlog.info("\nPlease Enter New Service\n"))
@@ -300,17 +309,9 @@ def read_iptables(def_vars):
                 else:
                     service["sources"].append(str(ip_addr))
 
-            try:
-                read_dict["restricted_services"].append(service)
-            except KeyError:
-                read_dict["restricted_services"] = list()
-                read_dict["restricted_services"].append(service)
+            read_dict["restricted_services"].append(service)
         else:
-            try:
-                read_dict["public_services"].append(service)
-            except KeyError:
-                read_dict["public_services"] = list()
-                read_dict["public_services"].append(service)
+            read_dict["public_services"].append(service)
 
             # TODO Refactor this to a class, like Packages-Hosts
 
@@ -319,16 +320,11 @@ def read_iptables(def_vars):
                                             default="no")
 
     # TODO Ask for application of FW rules
-
     # READ Template for Rules
-
     # READ allow out ?
-
     # TODO Implement more services
     # READ BASE services
-
     # READ RESTRICTED services
-
     return read_dict
 
 
