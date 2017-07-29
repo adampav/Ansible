@@ -160,7 +160,7 @@ def main():
 
     print(userlog.info(command))
     time.sleep(2)
-    if args.debug and not query_yes_no(userlog.warn("Do you want to execute the command?", default="no")):
+    if args.debug and not query_yes_no(userlog.warn("Do you want to execute the command?"), default="no"):
         exit()
 
     os.system(command)
