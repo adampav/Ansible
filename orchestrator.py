@@ -5,7 +5,7 @@ import os
 import time
 
 from populate_role_vars import main as populator
-from populate_role_vars import select_playbook, select_roles, generate_temporary_playbook
+from populate_role_vars import select_playbook, generate_temporary_playbook
 from populate_role_vars import query_yes_no
 from populate_role_vars import POPULATED_VARS_OUTPUT
 from populate_role_vars import PLAYBOOK_PATH
@@ -21,7 +21,8 @@ def_run_parameters = {
     "interactive": False,
     "populate_vars": False,
     "debug": False,
-    "roles": False
+    "roles": False,
+    "custom_vars": "populated_vars.json"
 }
 
 parser = argparse.ArgumentParser(description="Orchestrator is a cool wrapper for using Ansible :) ")
@@ -49,6 +50,11 @@ parser.add_argument('--debug',
                     help='Dry Run Execution.',
                     default=def_run_parameters["debug"] or False,
                     action='store_true')
+
+parser.add_argument('--custom_vars',
+                    type=str,
+                    help='Provides a custom variables file to Ansible runtime',
+                    default=def_run_parameters["custom_vars"])
 
 parser.add_argument('--user',
                     type=str,
@@ -91,10 +97,41 @@ def main():
     if args.populate_vars or query_yes_no(userlog.info("Populate Vars?"), default="no"):
         populator(playbook=playbook)
 
-    user = def_run_parameters["user"]
+    # RUN USER FOR ANSIBLE
+    user = args.user or def_run_parameters["user"]
+    password = args.password or def_run_parameters["password"]
+    sudo = args.sudo or def_run_parameters["sudo"]
+    inventory = args.inventory
+    limit = args.limit
 
-    while args.interactive and query_yes_no(userlog.warn("Change value?\n\"user\":\t{0}".format(user)), default="no"):
-        user = input(userlog.error("Please enter the user to run Ansible as: >> "))
+    if args.interactive:
+        # Interactively READ RUN USER
+        while query_yes_no(userlog.warn("Change value?\n\"user\":\t{0}".format(user)), default="no"):
+            user = input(userlog.error("Please enter the user to run Ansible as: >> "))
+
+        # Interactively READ RUN USER
+        while query_yes_no(userlog.warn("Change value?\n\"password\":\t{0}".format(str(password))),
+                           default="no"):
+            password = query_yes_no(userlog.info("Password Authentication?"))
+
+        # Interactively READ RUN USER
+        while query_yes_no(userlog.warn("Change value?\n\"sudo\":\t{0}".format(str(sudo))),
+                           default="no"):
+            sudo = query_yes_no("Elevate privileges?")
+
+        # Interactively READ INVENTORY/LIMIT
+        if query_yes_no(userlog.info("Read IP?")):
+            ip_addr = None
+            while not ip_addr:
+                try:
+                    ip_addr = ipaddress.ip_address(input(userlog.error("Enter IP address for target host: >>\t")))
+                except ValueError:
+                    print("Enter a valid IP!\n")
+
+            inventory = (str(ip_addr))
+
+        if query_yes_no("Read Inventory Host/Group?"):
+            limit = (input("Please enter a name for Host or Group: >>\t"))
 
     # TODO read private key file
 
@@ -102,66 +139,41 @@ def main():
         'ansible-playbook',
         '{0}/{1}.yml'.format(PLAYBOOK_PATH, playbook),
         '-u',
-        args.user or user
+        user
     ]
 
-    password = def_run_parameters["password"]
-
-    while args.interactive and query_yes_no(userlog.warn("Change value?\n\"password\":\t{0}".format(str(password))),
-                                            default="no"):
-        password = query_yes_no(userlog.info("Password Authentication?"))
-
-    if args.password or password:
+    if password:
         exec_list.append('-k')
 
-    sudo = def_run_parameters["sudo"]
-
-    while args.interactive and query_yes_no(userlog.warn("Change value?\n\"sudo\":\t{0}".format(str(sudo))),
-                                            default="no"):
-        sudo = query_yes_no("Elevate privileges?")
-
-    if args.sudo or sudo:
+    if sudo:
         exec_list.append('-K')
 
-    # TODO read inventory? / read IP ???
-
-    if args.interactive and query_yes_no(userlog.info("Read IP?")):
+    if inventory:
         exec_list.append("-i")
-        ip_addr = None
-        while not ip_addr:
-            try:
-                ip_addr = ipaddress.ip_address(input(userlog.error("Enter IP address for target host: >>\t")))
-            except ValueError:
-                print("Enter a valid IP!\n")
+        exec_list.append("'{0}',".format(args.inventory))
 
-        exec_list.append(str(ip_addr))
-
-    elif args.interactive and query_yes_no("Read Inventory Host/Group?"):
+    if limit:
         exec_list.append("-l")
-        exec_list.append(input("Please enter a name for Host or Group: >>\t"))
-    else:
-        if args.inventory:
-            exec_list.append("-i")
-            exec_list.append("'{0}',".format(args.inventory))
-        elif args.limit:
-            exec_list.append("-l")
-            exec_list.append("'{0}'".format(args.limit))
-        elif query_yes_no(userlog.error("Do you want to run against all hosts in \"/etc/ansible/hosts\" ?")):
-            pass
-        else:
-            exit()
+        exec_list.append("'{0}'".format(args.limit))
 
-    exec_list.append('-e')
-    exec_list.append("@" + POPULATED_VARS_OUTPUT)
+    if inventory or limit or query_yes_no(userlog.error("Run on all hosts in \"/etc/ansible/hosts\" ?")):
+        pass
+    else:
+        exit()
+
+    if args.custom_vars:
+        exec_list.append('-e')
+        exec_list.append("@" + POPULATED_VARS_OUTPUT)
 
     command = ""
     for elem in exec_list:
         command += elem + ' '
 
     print(userlog.info(command))
-    time.sleep(2)
     if args.debug and not query_yes_no(userlog.warn("Do you want to execute the command?"), default="no"):
         exit()
+    else:
+        time.sleep(2)
 
     os.system(command)
 
