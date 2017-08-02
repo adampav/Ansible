@@ -547,32 +547,30 @@ def read_sshd_configuration(def_vars):
 def select_roles():
     try:
         with open(ROLES, 'r') as f:
-            roles = list(json.load(f))
+            roles = dict(json.load(f))
         print(userlog.info("\nAvailable Roles are:\n"+json.dumps(roles, indent=4)))
 
         chosen_roles = []
 
-        while True:
-            i = 0
-            for role in roles:
-                print('{0} -> {1}'.format(i, role))
-                i += 1
+        while roles:
+            for role_id in sorted(roles.keys()):
+                print('{0} -> {1}'.format(role_id, roles[role_id]))
 
             choice = input("\nPlease select one from the choices above using the number.\nEmpty to stop.\n")
 
             if not choice:
                 if chosen_roles:
                     break
-            elif int(choice) not in range(0, len(roles)):
+            elif choice not in roles:
                 print(userlog.error("\nInvalid Choice\n"))
                 continue
             else:
-                chosen_roles.append(roles[int(choice)])
-                roles.remove(roles[int(choice)])
+                chosen_roles.append(roles[choice])
+                roles.pop(choice)
 
-        print(userlog.info(json.dumps(list(set(chosen_roles)), indent=4)))
+        print(userlog.info(json.dumps(chosen_roles, indent=4)))
 
-        return list(set(chosen_roles))
+        return chosen_roles
     except IOError:
         print(userlog.error("No Roles specified. Exiting"))
         return None
@@ -591,7 +589,7 @@ def select_playbook():
     while True:
         i = 0
         for playbook in playbooks:
-            print('{0} -> {1}'.format(i, playbook))
+            print('{0}\t->\t{1}'.format(i, playbook))
             i += 1
 
         choice = input("\nPlease Select one choice as listed above.\n")

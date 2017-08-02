@@ -1,13 +1,13 @@
-[
-  "install-python",
-  "manage-beats",
-  "manage-fail2ban",
-  "manage-hostnames",
-  "manage-iptables",
-  "manage-network-configuration",
-  "manage-packages",
-  "manage-saltstack-deployment",
-  "manage-ssh-keys",
-  "manage-ssh-known_hosts",
-  "manage-sshd-configuration"
-]
+{
+  "0": "install-python",
+  "1": "manage-beats",
+  "2": "manage-fail2ban",
+  "3": "manage-hostnames",
+  "4": "manage-iptables",
+  "5": "manage-network-configuration",
+  "6": "manage-packages",
+  "7": "manage-saltstack-deployment",
+  "8": "manage-ssh-keys",
+  "9": "manage-ssh-known_hosts",
+  "10": "manage-sshd-configuration"
+}
