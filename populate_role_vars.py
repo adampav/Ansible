@@ -343,6 +343,9 @@ def read_network_configuration(def_vars):
             if query_yes_no(userlog.warn("Keep the default value?")):
                 read_dict[ip_arg] = def_vars[ip_arg]
                 continue
+            else:
+                print(userlog.warn("\nOverwriting default value for \"{0}\".".format(ip_arg)))
+                read_dict[ip_arg] = str(read_ip(custom_message=" for {0}".format(ip_arg)))
         else:
             print(userlog.warn("\nNo default value for \"{0}\".".format(ip_arg)))
             read_dict[ip_arg] = str(read_ip(custom_message=" for {0}".format(ip_arg)))
@@ -444,33 +447,42 @@ def read_saltstack(def_vars):
 
 def read_ssh_keys(def_vars):
     read_dict = dict()
+
+    if not def_vars:
+        def_vars = dict()
+
     # Validate Key Path
-    if "exec_keys" in def_vars:
-        exec_keys = [key for key in def_vars["exec_keys"] if Path(os.path.expanduser(key)).is_file()
-                     and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
+    if "exec_user_keys" in def_vars:
+        exec_user_keys = [key for key in def_vars["exec_user_keys"] if Path(os.path.expanduser(key["file"])).is_file()
+                          and query_yes_no(userlog.warn("Keep this Key Option? ---> {0}").format(key))]
 
     else:
-        exec_keys = []
+        exec_user_keys = []
 
-    print(userlog.info("Current Public Keys that will be installed for the user you will execute Ansible as:\n"
-          + json.dumps(exec_keys, indent=4))+"\n")
+    print(userlog.info("Current Public Keys that will be installed for Ansible runner:\n"
+          + json.dumps(exec_user_keys, indent=4))+"\n")
 
     print(userlog.warn("Reading Additional Keys. Enter \"empty\" string to stop."))
 
     while True:
         key = read_pub_key(key="exec user")
-        if key:
-            exec_keys.append(key)
-            key = None
-        else:
+
+        if not key:
             break
+
+        if query_yes_no(userlog.warn("=== Present? ===")):
+            state = "present"
+        else:
+            state = "absent"
+
+        exec_user_keys.append({"file": key, "state": state})
 
     # Keys for Root
     root_keys = []
     if query_yes_no(userlog.warn("Will you execute as ROOT?")):
         print(userlog.error("Beware! The keys you have specified for the exec user will be installed to Root")+"\n")
 
-    elif query_yes_no(userlog.error("Install key to ROOT?")):
+    elif query_yes_no(userlog.error("Install a key to ROOT?")):
 
         if "root_keys" in def_vars:
             root_keys = [key for key in def_vars["root_keys"] if Path(os.path.expanduser(key)).is_file()
@@ -483,35 +495,45 @@ def read_ssh_keys(def_vars):
 
         while True:
             key = read_pub_key(key="root user")
-            if key:
-                exec_keys.append(key)
-                key = None
-            else:
+
+            if not key:
                 break
+
+            if query_yes_no(userlog.warn("=== Present? ===")):
+                state = "present"
+            else:
+                state = "absent"
+
+            root_keys.append({"file": key, "state": state})
 
     else:
         pass
 
-    custom_keys = []
-    if "custom_keys" in def_vars:
-        custom_keys = [key for key in def_vars["custom_keys"] if Path(os.path.expanduser(key)).is_file()
-                       and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
+    custom_user_keys = []
+    if "custom_user_keys" in def_vars:
+        custom_user_keys = [key for key in def_vars["custom_user_keys"] if Path(os.path.expanduser(key)).is_file()
+                            and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
 
     # TODO this part need a bit of refinement
     print(userlog.info("Current Public Keys that will be installed for the user:\n"
-                       + json.dumps(custom_keys, indent=4)))
+                       + json.dumps(custom_user_keys, indent=4)))
 
     while not key:
         key = read_pub_key(key="Custom user")
-        if key:
-            custom_keys.append(key)
-            key = None
-        else:
+
+        if not key:
             break
 
-    read_dict["exec_keys"] = exec_keys
+        if query_yes_no(userlog.warn("=== Present? ===")):
+            state = "present"
+        else:
+            state = "absent"
+
+        custom_user_keys.append({"file": key, "state": state})
+
+    read_dict["exec_user_keys"] = exec_user_keys
     read_dict["root_keys"] = root_keys
-    read_dict["custom_keys"] = custom_keys
+    read_dict["custom_user_keys"] = custom_user_keys
 
     return read_dict
 
