@@ -16,6 +16,8 @@
     - manage-network-configuration
     - manage-sshd-configuration
   tasks:
+    - meta: flush_handlers
+
     - name: reboot the system after playbook execution
       command: /sbin/shutdown -r 1 "Ansible Calling for a System Reboot"
 ...
