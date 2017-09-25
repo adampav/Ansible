@@ -485,7 +485,7 @@ def read_ssh_keys(def_vars):
     elif query_yes_no(userlog.error("Install a key to ROOT?")):
 
         if "root_keys" in def_vars:
-            root_keys = [key for key in def_vars["root_keys"] if Path(os.path.expanduser(key)).is_file()
+            root_keys = [key for key in def_vars["root_keys"] if Path(os.path.expanduser(key["file"])).is_file()
                          and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
 
         print(userlog.info("Current Public Keys that will be installed for ROOT:\n"
@@ -511,7 +511,7 @@ def read_ssh_keys(def_vars):
 
     custom_user_keys = []
     if "custom_user_keys" in def_vars:
-        custom_user_keys = [key for key in def_vars["custom_user_keys"] if Path(os.path.expanduser(key)).is_file()
+        custom_user_keys = [key for key in def_vars["custom_user_keys"] if Path(os.path.expanduser(key["file"])).is_file()
                             and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
 
     # TODO this part need a bit of refinement
