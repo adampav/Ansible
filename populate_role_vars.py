@@ -514,26 +514,46 @@ def read_ssh_keys(def_vars):
         custom_user_keys = [key for key in def_vars["custom_user_keys"] if Path(os.path.expanduser(key["file"])).is_file()
                             and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
 
-    # TODO this part need a bit of refinement
-    print(userlog.info("Current Public Keys that will be installed for the user:\n"
-                       + json.dumps(custom_user_keys, indent=4)))
-
-    while not key:
-        key = read_pub_key(key="Custom user")
-
-        if not key:
-            break
-
-        if query_yes_no(userlog.warn("=== Present? ===")):
-            state = "present"
-        else:
-            state = "absent"
-
-        custom_user_keys.append({"file": key, "state": state})
-
     read_dict["exec_user_keys"] = exec_user_keys
     read_dict["root_keys"] = root_keys
-    read_dict["custom_user_keys"] = custom_user_keys
+
+    # TODO this part need a bit of refinement
+
+    if query_yes_no(userlog.info("Enter keys for another user?"), default="no"):
+
+        custom_user = None
+        if "custom_user" in def_vars:
+            custom_user = def_vars["custom_user"]
+
+        while True:
+            print(userlog.info("Custom User value is:") + " {0}".format(custom_user))
+
+            if custom_user and query_yes_no(userlog.warn("Keep the value?")):
+                break
+            else:
+                custom_user = input(userlog.info("Enter the desired username!\n"))
+
+        print(userlog.info("Current Public Keys that will be installed for the user:" + " {0}\n".format(custom_user)
+                           + json.dumps(custom_user_keys, indent=4)))
+
+        if query_yes_no(userlog.warn("Enter additional Keys?")):
+            while not key:
+                key = read_pub_key(key="Custom user")
+
+                if not key:
+                    break
+
+                if query_yes_no(userlog.warn("=== Present? ===")):
+                    state = "present"
+                else:
+                    state = "absent"
+
+                custom_user_keys.append({"file": key, "state": state})
+
+        read_dict["custom_user_keys"] = custom_user_keys
+
+    else:
+        read_dict["custom_user_keys"] = []
 
     return read_dict
 
