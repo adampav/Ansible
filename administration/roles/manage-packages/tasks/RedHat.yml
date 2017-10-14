@@ -4,5 +4,31 @@
     name: libselinux-python
     state: latest
 
+- name: YUM - Update all packages
+  yum:
+    name: "*"
+  when: UPGRADE_DIST_FLAG == True and not UPDATE_REPO == True
+
+- name: YUM - Update all packages to the newest version
+  yum:
+    name: "*"
+    update_cache: yes
+  when: UPGRADE_DIST_FLAG == True and UPDATE_REPO == True
+
+- name: YUM - Install base packages
+  yum:
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+  with_items:
+    - '{{ base_packages }}'
+
+- name: YUM - Manage extra packages
+  yum:
+    name: "{{ item.name }}"
+    state: "{{ item.state }}"
+  with_items:
+    - '{{ extra_packages }}'
+  when: extra_packages is defined and extra_packages != ""
+
 - include: common.yml
 ...
