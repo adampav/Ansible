@@ -1,0 +1,21 @@
+---
+- name: Add RPM Repository Key for Saltstack
+  yum:
+    name: "https://repo.saltstack.com/yum/redhat/salt-repo-latest-2.el7.noarch.rpm"
+    state: installed
+  when: SALT_INSTALL_FLAG == True
+
+- name: Install Saltstack Minion
+  yum:
+    update_cache: yes
+    name: salt-minion
+    state: latest
+  when: SALT_INSTALL_FLAG == True and SALT_MINION_FLAG == True
+
+- name: Install Saltstack Master
+  yum:
+    update_cache: yes
+    name: salt-master
+    state: latest
+  when: SALT_INSTALL_FLAG == True and SALT_MASTER_FLAG == True
+...
