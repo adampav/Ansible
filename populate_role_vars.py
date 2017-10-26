@@ -233,13 +233,12 @@ def read_iptables(def_vars):
     except KeyError:
         read_dict["public_services"] = list()
 
-    # Filter old rules in restricted_services
-    read_dict["restricted_services"] = [elem for elem in def_vars["restricted_services"]
-                                        if (elem["service"] == "ssh" and elem["port"] == 22)
-                                        or query_yes_no(userlog.warn("Keep this restricted service?\n" +
-                                                                     json.dumps(elem, indent=4)))]
     try:
-        pass
+        # Filter old rules in restricted_services
+        read_dict["restricted_services"] = [elem for elem in def_vars["restricted_services"]
+                                            if (elem["service"] == "ssh" and elem["port"] == 22)
+                                            or query_yes_no(userlog.warn("Keep this restricted service?\n" +
+                                                                         json.dumps(elem, indent=4)))]
     except KeyError:
         read_dict["restricted_services"] = list()
 
