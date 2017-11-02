@@ -6,5 +6,6 @@
   "maintain",
   "init-config",
   "pythonize",
-  "salt"
+  "salt",
+  "temporary"
 ]

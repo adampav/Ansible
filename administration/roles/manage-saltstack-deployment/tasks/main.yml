@@ -2,10 +2,13 @@
 - name: Grab Facts
   setup: gather_subset='all'
 
-- name: Include "{{ ansible_os_family }}" Tasks -> INSTALL
-  include: "{{ ansible_os_family }}.yml"
+- name: Include "{{ ansible_distribution }}" INSTALL TASKS
+  include: "{{ ansible_distribution }}.yml"
+  # WIP include per OS distribution to cover Debian vs Ubuntu
+  # Possibly use os_family to stack usage of same package manager
+  when: SALT_INSTALL_FLAG == True
 
-#- name: Include "{{ ansible_os_family }}" Tasks -> UNINSTALL
-#  include: "remove{{ ansible_os_family }}.yml"
-#  when: UNINSTALL_FLAG == True
+- name: Include CONFIGURE Tasks
+  include: configure.yml
+  when: SALT_CONFIGURE_FLAG == True
 ...

@@ -150,11 +150,11 @@ def main():
 
     if inventory:
         exec_list.append("-i")
-        exec_list.append("'{0}',".format(args.inventory))
+        exec_list.append("'{0}',".format(inventory))
 
     if limit:
         exec_list.append("-l")
-        exec_list.append("'{0}'".format(args.limit))
+        exec_list.append("'{0}'".format(limit))
 
     if inventory or limit or query_yes_no(userlog.error("Run on all hosts in \"/etc/ansible/hosts\" ?")):
         pass
