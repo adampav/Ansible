@@ -12,8 +12,8 @@
 - name: Add apt sources
   lineinfile:
     dest: /etc/apt/sources.list.d/saltstack.list
-    regexp: "^deb http://repo.saltstack.com/apt/debian/{{ ansible_distribution_version }}/amd64/latest {{ ansible_distribution_release }} main"
-    line: "deb http://repo.saltstack.com/apt/debian/{{ ansible_distribution_version }}/amd64/latest {{ansible_distribution_release }} main"
+    regexp: "^deb http://repo.saltstack.com/apt/debian/{{ ansible_distribution_major_version }}/amd64/latest {{ ansible_distribution_release }} main"
+    line: "deb http://repo.saltstack.com/apt/debian/{{ ansible_distribution_major_version }}/amd64/latest {{ansible_distribution_release }} main"
     state: present
     owner: root
     group: root
