@@ -5,6 +5,7 @@
 *.pyc
 __pycache__/
 env/
+venv
 ansible-files/
 populated_vars.json
 administration/roles/manage-network-configuration/defaults/main.yml
