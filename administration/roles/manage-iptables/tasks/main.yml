@@ -6,5 +6,5 @@
   include: "{{ ansible_os_family }}.yml"
 
 - name: Include "{{ ansible_os_family }}"
-  include: "remove{{ ansible_os_family }}.yml"
+  include: "{{ ansible_os_family }}.yml"
 ...
