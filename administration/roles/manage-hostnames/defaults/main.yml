@@ -1,5 +1,3 @@
 # template file - main.yml
 hostname_file: "/etc/hostname"
 hosts_file: "/etc/hosts"
-custom_hostname: ""
-custom_hosts:

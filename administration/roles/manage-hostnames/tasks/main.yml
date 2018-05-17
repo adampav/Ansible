@@ -2,16 +2,16 @@
 - name: Valuable configs
   setup: gather_subset='network'
 
-#- name: Modify "{{ hosts_file }}"
-#  lineinfile: dest="{{ hosts_file }}"
-#              regexp="{{ item.regexp }}"
-#              line="{{ item.ip }}\t{{ item.name }}"
-#              state="{{ item.state }}"
-#              owner=root
-#              group=root
-#              mode=0644
-#  with_items:
-#    - "{{ custom_hosts }}"
+- name: Modify "{{ hosts_file }}"
+  lineinfile: dest="{{ hosts_file }}"
+              regexp="{{ item.ip }}.*"
+              line="{{ item.ip }}\t{{ item.name }}"
+              state="{{ item.state }}"
+              owner=root
+              group=root
+              mode=0644
+  with_items:
+    - "{{ custom_hosts }}"
 
 - name: Modify "{{ hostname_file }}"
   lineinfile: dest="{{ hostname_file }}"
@@ -20,11 +20,8 @@
               owner=root
               group=root
               mode=0644
-              # TODO Overwrite /etc/hostname
-  when: custom_hostname
 
 - name: Change Hostname
   hostname:
     name: "{{ custom_hostname }}"
-  when: custom_hostname
 ...
