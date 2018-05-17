@@ -198,8 +198,8 @@ def read_ip(custom_message="", accept_none=False):
     ip_input = None
     while not ip_addr:
         try:
-            ip_input = input(userlog.info("Please enter an IP address{0}: >>").format(custom_message) + ' ')
-            ip_addr = ipaddress.ip_address(ip_input)
+            ip_input = input(userlog.info("Please enter an IP address{0}: >> ").format(custom_message))
+            ip_addr = ipaddress.ip_address(u'{0}'.format(ip_input))
         except ValueError:
             if accept_none and not ip_input:
                 return None
@@ -207,6 +207,16 @@ def read_ip(custom_message="", accept_none=False):
                 print(userlog.error("Bad IP Format. Try again!\n\n"))
 
     return ip_addr
+
+
+def read_hostname(custom_message="", accept_none=False):
+    hostname = None
+    while not hostname:
+        hostname = input(userlog.info("Please enter a hostname {0}: >> ").format(custom_message))
+        if accept_none:
+            break
+
+    return hostname
 
 
 def read_beats(def_vars):
@@ -327,8 +337,74 @@ def read_iptables(def_vars):
     return read_dict
 
 
-def read_hostnames(def_vars):
+def read_hostnames_and_hosts(def_vars):
+    """
+
+    :param def_vars:
+    :return:
+    """
+
     read_dict = dict()
+
+    # Load Hostname
+    try:
+        hostname = def_vars["hostname"]
+
+    except KeyError:
+        hostname = ''
+
+    # Read Hostname if None or you don't want to keep it
+    if not hostname or not query_yes_no("Keep this hostname: {0}?".format(hostname)):
+        hostname = read_hostname()
+
+    try:
+        # Filter Association Mappings
+        host_mappings = [elem for elem in def_vars["hosts"]
+                 if query_yes_no(userlog.warn("Keep this IP -> Hostname mapping?\n" +
+                                              json.dumps(elem, indent=4)))]
+
+    except KeyError:
+        host_mappings = []
+
+    while True:
+        print(userlog.info("\nPlease Enter a New IP - HOSTNAMES mapping. Empty to break\n"))
+        ip_addr = read_ip(accept_none=True)
+
+        if not ip_addr:
+            break
+
+        # Does not accept_none
+        if query_yes_no('State Present?'):
+            state = 'present'
+
+            assigned_hosts = [read_hostname()]
+            print(assigned_hosts)
+
+            while True:
+                print(userlog.info("Enter Empty String to finish the mapping."))
+                myhost = read_hostname(accept_none=True)
+                if myhost:
+                    assigned_hosts.append(myhost)
+                else:
+                    break
+
+        else:
+            state = 'absent'
+            assigned_hosts = []
+
+        host_mappings.append(
+            {
+                'ip': str(ip_addr),
+                # creates tab-separated string from the list of assigned hosts
+                'name': '\t'.join(assigned_hosts),
+                'state': state
+            }
+        )
+
+    read_dict = {
+        "hosts_mappings": host_mappings,
+        "hostname": hostname
+    }
 
     return read_dict
 
@@ -693,11 +769,9 @@ def read_role_vars(role=None):
         print(role)
         role_vars = read_fail2ban(role_vars)
     elif role == "manage-hostnames":
-        # TODO read important role_vars for hostname
         print(role)
-        role_vars = read_hostnames(role_vars)
+        role_vars = read_hostnames_and_hosts(role_vars)
     elif role == "manage-iptables":
-        # TODO read important role_vars for iptables
         print(role)
         role_vars = read_iptables(role_vars)
     elif role == "manage-network-configuration":

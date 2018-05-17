@@ -11,11 +11,11 @@
               group=root
               mode=0644
   with_items:
-    - "{{ custom_hosts }}"
+    - "{{ hosts_mappings }}"
 
 - name: Modify "{{ hostname_file }}"
   lineinfile: dest="{{ hostname_file }}"
-              line="{{ custom_hostname }}"
+              line="{{ hostname }}"
               regexp='\s+'
               owner=root
               group=root
@@ -23,5 +23,5 @@
 
 - name: Change Hostname
   hostname:
-    name: "{{ custom_hostname }}"
+    name: "{{ hostname }}"
 ...
