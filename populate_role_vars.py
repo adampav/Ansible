@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
-from utils import UserLog
+from utils import UserLog, query_yes_no, read_ip, read_hostname, read_pub_key, Packages, HostExemption
 import json
 import yaml
 import os
 import sys
-import ipaddress
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 
@@ -23,210 +22,6 @@ PLAYBOOK_ROLES = 'playbook_roles.json'
 POPULATED_VARS_OUTPUT = 'populated_vars.json'
 ip_args = ["primary_ip", "primary_netmask", "primary_network",
            "primary_broadcast", "primary_dns1", "primary_dns2", "gateway"]
-
-
-### PLAN TO REFACTOR read_iptables() ###
-# read
-# iptables.
-#
-# # FILTER/VALIDATE OLD PUBLIC_SERVICES
-# # FILTER/VALIDATE OLD RESTRICTED_SERVICES
-# # READ NEW SERVICES
-# # FAILSAFE: CHECK THERE IS A RULE FOR SSH
-#
-#
-# FirewallRule:
-#
-# read_public
-# read_restricted
-#
-# read_service
-# query
-# validate
-### END OF PLAN ###
-
-class HostExemption:
-    def __init__(self, **kwargs):
-        validator = self.validate(**kwargs)
-
-    @staticmethod
-    def validate(raise_f=True, **kwargs):
-        needed_args = ["id", "state", "addr"]
-        acceptable = {
-            "state": ["absent", "present"]
-        }
-
-        for arg in needed_args:
-            if arg not in kwargs or not kwargs[arg]:
-                if raise_f:
-                    raise ValueError
-                else:
-                    return False
-
-        if not isinstance(kwargs["id"], int):
-            if raise_f:
-                raise TypeError("id is not an Integer")
-            else:
-                return False
-
-        if kwargs["state"] != "present" and kwargs["state"] != "absent":
-            print("\nValue not acceptable!\n"+json.dumps(acceptable["state"], indent=4))
-            if raise_f:
-                raise ValueError("Invalid state value. Select one from the list.")
-            else:
-                return False
-
-        try:
-            ipaddress.ip_address(kwargs["addr"])
-        except ValueError:
-            if raise_f:
-                ipaddress.ip_address(kwargs["addr"])
-            else:
-                return False
-
-        return True
-
-    @staticmethod
-    def read_priviliged_hosts(priv_len=1):
-        func_priv_args = []
-        while True:
-            priv_dict = {
-                "addr": input("Enter an IP Address for Privileged Host, Empty to Stop : >> "),
-                "id": priv_len,
-                "state": query_yes_no(userlog.warn("State: Present?"))
-            }
-            if priv_dict["state"]:
-                priv_dict["state"] = "present"
-            else:
-                priv_dict["state"] = "absent"
-
-            if not priv_dict["addr"]:
-                break
-
-            if HostExemption.validate(raise_f=False, **priv_dict):
-                func_priv_args.append(priv_dict)
-
-            priv_len += 1
-
-        return func_priv_args
-
-
-class Packages:
-    def __init__(self, **kwargs):
-        self.validated = self.validate(**kwargs)
-
-    @staticmethod
-    def validate(raise_f=True, **kwargs):
-        needed_args = ["name", "state"]
-        acceptable = {
-            "state": [
-                "absent",
-                "present",
-                "latest"
-            ],
-            "name": [
-                "vim", "nano", "git",
-                "nmap", "tcpdump", "iptables", "iptables-persistent", "ufw", "netstat",
-                "python", "python3"
-            ]
-        }
-
-        for arg in needed_args:
-            if arg not in kwargs or not kwargs[arg]:
-                if raise_f:
-                    raise ValueError
-                else:
-                    return False
-
-        if kwargs["name"] not in acceptable["name"]:
-            print("\nValue not acceptable!\n"+json.dumps(acceptable["name"], indent=4))
-            if raise_f:
-                raise ValueError("Invalid Package Name. Select one from the list.")
-            else:
-                return False
-
-        if kwargs["state"] not in acceptable["state"]:
-            print("\nValue not acceptable!\n"+json.dumps(acceptable["state"], indent=4))
-            if raise_f:
-                raise ValueError("Invalid state value. Select one from the list.")
-            else:
-                return False
-
-        return True
-
-    @staticmethod
-    def read_extra_packages():
-        func_extra_packages = []
-        while True:
-            package_dict = {
-                "name": input(userlog.info("Enter Package Name, Empty to Stop : >>") + ' '),
-                "state": input(userlog.info("Enter the state of the package, Empty = Present : >>") + ' ') or "present"
-            }
-
-            if not package_dict["name"]:
-                break
-
-            if Packages.validate(raise_f=False, **package_dict):
-                func_extra_packages.append(package_dict)
-        return func_extra_packages
-
-
-def query_yes_no(question, default="yes"):
-    # Available from https://stackoverflow.com/questions/3041986/apt-command-line-interface-like-yes-no-input
-    """
-    :param question: String to be asked as a question
-    :param default: Default answer to the question
-    :return: True or False to the question
-    """
-    valid = {"yes": True, "y": True, "ye": True, "Y": True, "YES": True,
-             "no": False, "n": False, "N": False, "NO": False}
-
-    if default is None:
-        prompt = " [y/n] "
-    elif default == "yes":
-        prompt = " [Y/n] "
-    elif default == "no":
-        prompt = " [y/N] "
-    else:
-        raise ValueError("invalid default answer: '%s'" % default)
-
-    while True:
-        sys.stdout.write(question + prompt)
-        choice = input().lower()
-        if default is not None and choice == '':
-            return valid[default]
-        elif choice in valid:
-            return valid[choice]
-        else:
-            sys.stdout.write("Please respond with 'yes' or 'no' "
-                             "(or 'y' or 'n').\n")
-
-
-def read_pub_key(key="some", break_flag=True):
-    key_path = input(userlog.info("Enter a file path for {0} user's key: >>").format(key) + ' ')
-    while True:
-        if not key_path and break_flag:
-            return None
-        elif not Path(os.path.expanduser(key_path)).is_file():
-            key_path = input(userlog.error("Enter a file path for {0} user's key: >>").format(key) + ' ')
-        else:
-            return key_path
-
-
-def read_ip(custom_message="", accept_none=False):
-    ip_addr = None
-    ip_input = None
-    while not ip_addr:
-        try:
-            ip_input = input(userlog.info("Please enter an IP address{0}: >>").format(custom_message) + ' ')
-            ip_addr = ipaddress.ip_address(ip_input)
-        except ValueError:
-            if accept_none and not ip_input:
-                return None
-            else:
-                print(userlog.error("Bad IP Format. Try again!\n\n"))
-
-    return ip_addr
 
 
 def read_beats(def_vars):
@@ -347,8 +142,72 @@ def read_iptables(def_vars):
     return read_dict
 
 
-def read_hostnames(def_vars):
+def read_hostnames_and_hosts(def_vars):
+    """
+
+    :param def_vars:
+    :return:
+    """
+
     read_dict = dict()
+
+    # Load Hostname
+    try:
+        hostname = def_vars["hostname"]
+
+    except KeyError:
+        hostname = ''
+
+    # Read Hostname if None or you don't want to keep it
+    if not hostname or not query_yes_no("Keep this hostname: {0}?".format(hostname)):
+        hostname = read_hostname()
+
+    try:
+        # Filter Association Mappings
+        host_mappings = [elem for elem in def_vars["hosts"]
+                         if query_yes_no(userlog.warn("Keep this IP -> Hostname mapping?\n" +
+                                                      json.dumps(elem, indent=4)))]
+
+    except KeyError:
+        host_mappings = []
+
+    while True:
+        print(userlog.info("\nPlease Enter a New IP - HOSTNAMES mapping. Empty to break\n"))
+        ip_addr = read_ip(accept_none=True)
+
+        if not ip_addr:
+            break
+
+        # Does not accept_none
+        if query_yes_no('State Present?'):
+            state = 'present'
+
+            assigned_hosts = [read_hostname()]
+            print(assigned_hosts)
+
+            while True:
+                print(userlog.info("Enter Empty String to finish the mapping."))
+                myhost = read_hostname(accept_none=True)
+                if myhost:
+                    assigned_hosts.append(myhost)
+                else:
+                    break
+
+        else:
+            state = 'absent'
+            assigned_hosts = []
+
+        host_mappings.append(
+            {
+                'ip': str(ip_addr),
+                # creates tab-separated string from the list of assigned hosts
+                'name': '\t'.join(assigned_hosts),
+                'state': state
+            }
+        )
+
+    read_dict["hosts_mappings"] = host_mappings
+    read_dict["hostname"] = hostname
 
     return read_dict
 
@@ -530,7 +389,8 @@ def read_ssh_keys(def_vars):
 
     custom_user_keys = []
     if "custom_user_keys" in def_vars:
-        custom_user_keys = [key for key in def_vars["custom_user_keys"] if Path(os.path.expanduser(key["file"])).is_file()
+        custom_user_keys = [key for key in def_vars["custom_user_keys"]
+                            if Path(os.path.expanduser(key["file"])).is_file()
                             and query_yes_no(userlog.warn("Keep this Key? ---> {0}").format(key))]
 
     read_dict["exec_user_keys"] = exec_user_keys
@@ -668,20 +528,27 @@ def select_playbook():
     return chosen_playbook
 
 
-def generate_temporary_playbook(roles=None, become=True, gather_facts=False, reboot=False):
-    JINJA_FILE = 'administration/temporary.yml.j2'
-    jinja_args = {
-        "become": query_yes_no(userlog.warn("Become?")),
-        "gather_facts": query_yes_no(userlog.warn("Gather Facts?"), default="no"),
-        "reboot": query_yes_no(userlog.error("Reboot after the execution?"), default="no")
-    }
+def generate_temporary_playbook(roles=None, become=True, gather_facts=False, reboot=False, interactive=False):
+    jinja_file = 'administration/temporary.yml.j2'
+    if interactive:
+        jinja_args = {
+            "become": query_yes_no(userlog.warn("Become?")),
+            "gather_facts": query_yes_no(userlog.warn("Gather Facts?"), default="no"),
+            "reboot": query_yes_no(userlog.error("Reboot after the execution?"), default="no")
+        }
+    else:
+        jinja_args = {
+            'become': become,
+            'gather_facts': gather_facts,
+            'reboot': reboot
+        }
     if not roles:
         roles = select_roles()
 
     env = Environment(loader=FileSystemLoader(os.path.dirname(os.path.realpath(__file__))))
     env.trim_blocks = True
     env.lstrip_blocks = True
-    temporary_playbook = env.get_template(JINJA_FILE).render(roles=roles,
+    temporary_playbook = env.get_template(jinja_file).render(roles=roles,
                                                              become=jinja_args["become"],
                                                              gather_facts=jinja_args["gather_facts"],
                                                              reboot=jinja_args["reboot"])
@@ -713,11 +580,9 @@ def read_role_vars(role=None):
         print(role)
         role_vars = read_fail2ban(role_vars)
     elif role == "manage-hostnames":
-        # TODO read important role_vars for hostname
         print(role)
-        role_vars = read_hostnames(role_vars)
+        role_vars = read_hostnames_and_hosts(role_vars)
     elif role == "manage-iptables":
-        # TODO read important role_vars for iptables
         print(role)
         role_vars = read_iptables(role_vars)
     elif role == "manage-network-configuration":
@@ -765,8 +630,7 @@ def main(playbook=None, temp_playbook=False):
                 role_yaml = yaml.load(f)
                 roles = role_yaml[1]["roles"]
         except IOError:
-            print(userlog.error("Problem extracting roles from playbook"))
-            playbook = None
+            print(userlog.error('Problem extracting roles from playbook "{0}"'.format(playbook)))
 
     if not roles and not temp_playbook and not query_yes_no("Select Roles?"):
         print(userlog.error("No valid Options. Exiting"))
@@ -787,6 +651,7 @@ def main(playbook=None, temp_playbook=False):
     with open(POPULATED_VARS_OUTPUT, 'w') as f:
         json.dump(vm_vars, f, indent=4)
     return 0
+
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:

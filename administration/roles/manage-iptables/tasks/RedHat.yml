@@ -1,0 +1,8 @@
+---
+# TODO ADD THE LOGIC HERE
+- name: Install iptables
+  yum:
+    update_cache: yes
+    name: "iptables"
+    state: latest
+...
