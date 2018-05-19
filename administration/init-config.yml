@@ -14,6 +14,7 @@
     - manage-iptables
     - manage-ssh-keys
     - manage-network-configuration
+    - manage-hostnames
     - manage-sshd-configuration
   tasks:
     - meta: flush_handlers
