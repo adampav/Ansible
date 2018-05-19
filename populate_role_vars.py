@@ -23,6 +23,26 @@ POPULATED_VARS_OUTPUT = 'populated_vars.json'
 ip_args = ["primary_ip", "primary_netmask", "primary_network",
            "primary_broadcast", "primary_dns1", "primary_dns2", "gateway"]
 
+### PLAN TO REFACTOR read_iptables() ###
+# read
+# iptables.
+#
+# # FILTER/VALIDATE OLD PUBLIC_SERVICES
+# # FILTER/VALIDATE OLD RESTRICTED_SERVICES
+# # READ NEW SERVICES
+# # FAILSAFE: CHECK THERE IS A RULE FOR SSH
+#
+#
+# FirewallRule:
+#
+# read_public
+# read_restricted
+#
+# read_service
+# query
+# validate
+### END OF PLAN ###
+
 
 def read_beats(def_vars):
     read_dict = dict()
