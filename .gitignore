@@ -4,6 +4,7 @@
 .idea
 *.pyc
 __pycache__/
+keys/
 env/
 venv
 ansible-files/
