@@ -7,8 +7,10 @@ RELOAD_FLAG: False
 rules_v4_template: "base_secure_rules.v4.j2"
 rules_v6_template: "base_secure_rules.v6.j2"
 
-rules_v4_dest: "/etc/iptables/rules.v4"
-rules_v6_dest: "/etc/iptables/rules.v6"
+rules_v4_dest_deb: "/etc/iptables/rules.v4"
+rules_v6_dest_deb: "/etc/iptables/rules.v6"
+rules_v4_dest_rh: "/etc/sysconfig/iptables"
+rules_v6_dest_rh: "/etc/sysconfig/ip6tables"
 
 trusted_subnet:
 trusted_host:

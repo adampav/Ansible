@@ -11,11 +11,11 @@
 
 # Load the Templates
 - name: Load IPv4 iptables rules
-  template: src="{{ rules_v4_template }}" dest="{{ rules_v4_dest }}" force=yes backup=yes owner=root group=root mode=0644
+  template: src="{{ rules_v4_template }}" dest="{{ rules_v4_dest_deb }}" force=yes backup=yes owner=root group=root mode=0644
   notify: "iptables-restore"
 
 - name: Load IPv6 iptables rules
-  template: src="{{ rules_v6_template }}" dest="{{ rules_v6_dest }}" force=yes backup=yes owner=root group=root mode=0644
+  template: src="{{ rules_v6_template }}" dest="{{ rules_v6_dest_deb }}" force=yes backup=yes owner=root group=root mode=0644
   notify: "ip6tables-restore"
 
 - meta: flush_handlers
