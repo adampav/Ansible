@@ -358,6 +358,7 @@ def read_saltstack(def_vars):
     read_dict["SALT_CONFIGURE_FLAG"] = query_yes_no(userlog.info("Configure Salt?"))
     read_dict["SALT_MINION_FLAG"] = query_yes_no(userlog.info("Salt Minion?"))
     read_dict["SALT_MASTER_FLAG"] = query_yes_no(userlog.warn("Salt Master?"), default="no")
+    read_dict["SALT_ID"] = read_hostname("to be used for Salt Minion ID")
 
     if "SALT_MASTER_IP" in def_vars:
         print(userlog.info('\nDefault Value:\t{1}\tfor\t"{0}"\n'.format("SALT_MASTER_IP", def_vars["SALT_MASTER_IP"])))

@@ -2,6 +2,12 @@
 - name: Grab Facts
   setup: gather_subset='all'
 
+- name: Remove Minion ID caching
+  file:
+    path: /etc/salt/minion_id
+    state: absent
+  when: SALT_INSTALL_FLAG == True
+
 - name: Include "{{ ansible_distribution }}" INSTALL TASKS
   include: "{{ ansible_distribution }}.yml"
   # WIP include per OS distribution to cover Debian vs Ubuntu
