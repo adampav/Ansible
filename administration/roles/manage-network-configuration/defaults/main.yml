@@ -24,4 +24,5 @@ debian_config: "/etc/network/interfaces"
 debian_template: "debian-network-base-cfg.j2"
 redhat_config: "/etc/sysconfig/network-scripts/ifcfg-{{ primary_interface }}"
 redhat_template: "redhat-network-base-cfg.j2"
+RESOLVCONF_FLAG: False
 ...

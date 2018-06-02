@@ -2,6 +2,12 @@
 - name: Grab active interface
   setup: gather_subset='network'
 
+- name: Install resolvconf
+  apt:
+    name: "resolvconf"
+    state: "latest"
+  when: RESOLVCONF_FLAG == True
+
 - name: Create Base Configuration
   template: src="{{ debian_template }}" dest="{{ debian_config }}" force=yes backup=yes owner=root group=root mode=0644
 ...

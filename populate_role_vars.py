@@ -236,6 +236,8 @@ def read_network_configuration(def_vars):
     read_dict = dict()
     ip_iface = None
 
+    read_dict["RESOLVCONF_FLAG"] = query_yes_no(userlog.warn("Install resolvconf packages?"), default="no")
+
     # Read interface
     if query_yes_no(userlog.warn("Specify an interface? Else the default as defined in ansible facts will be used."),
                     default="no"):
