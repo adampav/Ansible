@@ -20,8 +20,8 @@ ROLES = 'roles.json'
 PLAYBOOKS = 'playbooks.json'
 PLAYBOOK_ROLES = 'playbook_roles.json'
 POPULATED_VARS_OUTPUT = 'populated_vars.json'
-ip_args = ["primary_ip", "primary_netmask", "primary_network",
-           "primary_broadcast", "primary_dns1", "primary_dns2", "gateway"]
+ip_args = ["primary_dns1", "primary_dns2", "gateway"]
+
 
 ### PLAN TO REFACTOR read_iptables() ###
 # read
@@ -234,6 +234,41 @@ def read_hostnames_and_hosts(def_vars):
 
 def read_network_configuration(def_vars):
     read_dict = dict()
+    ip_iface = None
+
+    # Read interface
+    if query_yes_no(userlog.warn("Specify an interface? Else the default as defined in ansible facts will be used."),
+                    default="no"):
+        read_dict["primary_interface"] = str(input(userlog.info("Please Specify a valid interface: >> ")))
+
+    # Read Primary IP Interface
+    if "primary_ip" in def_vars and "primary_netmask" in def_vars:
+        print(userlog.info('\nDefault Value:\t{1}\tfor\t"{0}"\n'.
+                           format("primary_ip", def_vars["primary_ip"])))
+        print(userlog.info('\nDefault Value:\t{1}\tfor\t"{0}"\n'.
+                           format("primary_netmask", def_vars["primary_netmask"])))
+
+        if query_yes_no(userlog.warn("Keep the default value?")):
+            read_dict["primary_ip"] = def_vars["primary_ip"]
+            read_dict["primary_netmask"] = def_vars["primary_netmask"]
+            read_dict["primary_network"] = def_vars["primary_network"]
+            read_dict["primary_broadcast"] = def_vars["primary_broadcast"]
+
+        else:
+            print(userlog.warn('\nOverwriting default value for "primary_interface"'))
+            ip_iface = read_ip(custom_message=" for {0}".format("primary_interface"), maskless=False)
+
+    else:
+        print(userlog.warn("\nNo default value for \"{0}\".".format("primary_interface")))
+        ip_iface = read_ip(custom_message=" for {0}".format("primary_interface"), maskless=False)
+
+    # Infer the "primary_ip", "primary_netmask", "primary_network","primary_broadcast",
+    if ip_iface:
+        read_dict["primary_ip"] = ip_iface.ip.__str__()
+        read_dict["primary_netmask"] = ip_iface.netmask.__str__()
+        read_dict["primary_network"] = ip_iface.network.network_address.__str__()
+        read_dict["primary_broadcast"] = ip_iface.network.broadcast_address.__str__()
+
     # Validate IP Settings
     for ip_arg in ip_args:
         if ip_arg in def_vars:
@@ -323,7 +358,20 @@ def read_saltstack(def_vars):
     read_dict["SALT_CONFIGURE_FLAG"] = query_yes_no(userlog.info("Configure Salt?"))
     read_dict["SALT_MINION_FLAG"] = query_yes_no(userlog.info("Salt Minion?"))
     read_dict["SALT_MASTER_FLAG"] = query_yes_no(userlog.warn("Salt Master?"), default="no")
-    read_dict["SALT_MASTER_IP"] = str(read_ip(custom_message=" for Salt Master"))
+
+    if "SALT_MASTER_IP" in def_vars:
+        print(userlog.info('\nDefault Value:\t{1}\tfor\t"{0}"\n'.format("SALT_MASTER_IP", def_vars["SALT_MASTER_IP"])))
+
+        if query_yes_no(userlog.warn("Keep the default value?")):
+            read_dict["SALT_MASTER_IP"] = def_vars["SALT_MASTER_IP"]
+
+        else:
+            print(userlog.warn('\nOverwriting default value for "SALT_MASTER_IP"'))
+            read_dict["SALT_MASTER_IP"] = read_ip(custom_message=" for {0}".format("SALT_MASTER_IP")).__str__()
+
+    else:
+        print(userlog.warn("\nNo default value for \"{0}\".".format("SALT_MASTER_IP")))
+        read_dict["SALT_MASTER_IP"] = read_ip(custom_message=" for {0}".format("SALT_MASTER_IP")).__str__()
 
     salt_packages = []
 
