@@ -216,20 +216,23 @@ def read_pub_key(key="some", break_flag=True):
             return key_path
 
 
-def read_ip(custom_message="", accept_none=False):
+def read_ip(custom_message="", accept_none=False, maskless=True):
     ip_addr = None
     ip_input = None
     while not ip_addr:
         try:
             ip_input = input(userlog.info("Please enter an IP address{0}: >> ").format(custom_message))
-            ip_addr = ipaddress.ip_address(u'{0}'.format(ip_input))
+            ip_addr = ipaddress.ip_interface(u'{0}'.format(ip_input))
         except ValueError:
             if accept_none and not ip_input:
                 return None
             else:
                 print(userlog.error("Bad IP Format. Try again!\n\n"))
 
-    return ip_addr
+    if maskless:
+        return ip_addr.ip
+    else:
+        return ip_addr
 
 
 def read_hostname(custom_message="", accept_none=False):
