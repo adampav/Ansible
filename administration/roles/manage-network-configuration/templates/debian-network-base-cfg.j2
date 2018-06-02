@@ -19,8 +19,15 @@ iface {{ interface.iface }} inet static
 {% if interface.gateway is defined %}
     gateway {{ interface.gateway }}
 {% endif %}
-{% if interface.dns is defined %}
-    dns-nameserver {{ interface.dns }}
+{% if interface.dnsprimary is defined %}
+    dns-nameserver {{ interface.dnsprimary }}
+{% else %}
+    dns-nameserver 8.8.8.8
+{% endif %}
+{% if interface.dnssecondary is defined %}
+    dns-nameserver {{ interface.dnssecondary }}
+{% else %}
+    dns-nameserver 8.8.8.8
 {% endif %}
 {% else %}
 iface {{ interface.iface }} inet dhcp

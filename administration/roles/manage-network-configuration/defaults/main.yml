@@ -4,7 +4,8 @@ interfaces:
   netmask: "{{ primary_netmask }}"
   network: "{{ primary_network }}"
   broadcast: "{{ primary_broadcast }}"
-  dns: "{{ primary_dns1 }} {{ primary_dns2 }}"
+  dnsprimary: "{{ primary_dns1 }}"
+  dnssecondary: "{{ primary_dns2 }}"
   gateway: "{{ gateway }}"
   iface: "{{ primary_interface }}"
 
