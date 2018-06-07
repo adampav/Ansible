@@ -77,13 +77,21 @@ def read_iptables(def_vars):
     except KeyError:
         read_dict["restricted_services"] = list()
 
+    iface = "{{ iface }}"
+
+    # Read interface
+    if query_yes_no(userlog.warn("Specify an interface? Else the default as defined in ansible facts will be used."),
+                    default="no"):
+        iface = str(input(userlog.info("Please Specify a valid interface: >> ")))
+        read_dict['iface'] = iface
+
     if query_yes_no(userlog.warn("Enable SSH?")):
         # DEFINE SSH SERVICE
         ssh_service = dict()
         ssh_service["port"] = 22
         ssh_service["service"] = "ssh"
         ssh_service["protocol"] = "tcp"
-        ssh_service["iface"] = "{{ iface }}"
+        ssh_service["iface"] = iface
         ssh_service["direction"] = "in"
 
         # REMOVE OLD SSH RULES from public_services
@@ -128,7 +136,7 @@ def read_iptables(def_vars):
             print(userlog.error("Ignoring Service\n"))
             continue
 
-        service["iface"] = "{{ iface }}"
+        service["iface"] = iface
         if query_yes_no("Ingress?"):
             service["direction"] = "in"
         else:
