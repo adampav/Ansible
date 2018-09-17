@@ -1,0 +1,12 @@
+---
+- name: Grab Facts
+  setup: gather_subset='all'
+
+- name: Include "{{ ansible_distribution }}" INSTALL TASKS
+  include: "{{ ansible_distribution }}.yml"
+  when: CHRONY_INSTALL_FLAG == True
+
+- name: Include CONFIGURE Tasks
+  include: configure.yml
+  when: CHRONY_CONFIGURE_FLAG == True
+...

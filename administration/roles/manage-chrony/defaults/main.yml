@@ -1,0 +1,9 @@
+# template file - main.yml
+---
+CHRONY_INSTALL_FLAG: False
+CHRONY_CONFIGURE_FLAG: True
+
+CHRONY_PACKAGES:
+  - name: chrony
+    state: latest
+...
