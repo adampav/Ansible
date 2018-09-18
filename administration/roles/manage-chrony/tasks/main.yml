@@ -1,0 +1,23 @@
+---
+- name: Grab Facts
+  setup: gather_subset='all'
+
+- name: Install Chrony
+  package:
+    name: chrony
+    state: latest
+  tags:
+    - packages
+
+# FIX ME for CentOS
+- name: Enable and Start chrony Service
+  service:
+    enabled: yes
+    state: started
+    name: chrony
+  tags:
+    - services
+
+- name: Include "{{ ansible_distribution }}" CONFIGURE Tasks
+  include: "configure_{{ ansible_distribution | lower }}.yml"
+...
