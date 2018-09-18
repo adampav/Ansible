@@ -1,9 +1,11 @@
-# template file - main.yml
 ---
-CHRONY_INSTALL_FLAG: False
-CHRONY_CONFIGURE_FLAG: True
-
-CHRONY_PACKAGES:
-  - name: chrony
-    state: latest
+chrony_cfgdest_centos: "/etc/chrony.conf"
+chrony_cfgdest_debian: "/etc/chrony/chrony.conf"
+chrony_cfgdest_ubuntu: "/etc/chrony/chrony.conf"
+chrony_template_centos: chrony-client.j2
+chrony_template_debian: chrony-client.j2
+chrony_template_ubuntu: chrony-client.j2
+chrony_servers:
+  - meraxes.netmode.ntua.gr
+  - ntp.grnet.gr
 ...

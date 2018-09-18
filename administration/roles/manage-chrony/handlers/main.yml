@@ -1,31 +1,5 @@
 ---
-- name: Restart salt-master Debian Based
-  service: name=salt-master state=restarted
-  listen: "master-restart"
-  when: (ansible_os_family == "Debian") or  (ansible_os_family == "Ubuntu")
-
-- name: Restart salt-master CentOS Based
-  service: name=salt-master state=restarted
-  listen: "master-restart"
-  when: ansible_distribution == "CentOS"
-
-- name: Restart salt-master BSD Based
-  service: name=salt-master state=reloaded
-  listen: "master-restart"
-  when: ansible_distribution == "FreeBSD"
-
-- name: Restart salt-minion Debian Based
-  service: name=salt-minion state=restarted
-  listen: "minion-restart"
-  when: (ansible_os_family == "Debian") or  (ansible_os_family == "Ubuntu")
-
-- name: Restart salt-minion CentOS Based
-  service: name=salt-minion state=restarted
-  listen: "minion-restart"
-  when: ansible_distribution == "CentOS"
-
-- name: Restart salt-minion BSD Based
-  service: name=salt-minion state=reloaded
-  listen: "minion-restart"
-  when: ansible_distribution == "FreeBSD"
+- name: Restart chrony service
+  service: name=chrony state=restarted
+  listen: "chrony-restart"
 ...

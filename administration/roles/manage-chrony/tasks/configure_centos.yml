@@ -1,0 +1,14 @@
+---
+- name: Configure chrony.conf - CentOS
+  template:
+    src: "{{ chrony_template_centos }}"
+    dest: "{{ chrony_cfgdest_centos }}"
+    force: yes
+    backup: yes
+    owner: root
+    mode: 0644
+    group: root
+  notify: "chronyd-restart"
+  tags:
+    - configuration
+...

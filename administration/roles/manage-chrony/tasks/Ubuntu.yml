@@ -1,7 +1,0 @@
----
-- name: Install Chrony client for Ubuntu
-  apt:
-    update_cache: yes
-    name: chrony
-    state: latest
-...

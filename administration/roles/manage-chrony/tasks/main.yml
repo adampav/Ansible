@@ -2,11 +2,22 @@
 - name: Grab Facts
   setup: gather_subset='all'
 
-- name: Include "{{ ansible_distribution }}" INSTALL TASKS
-  include: "{{ ansible_distribution }}.yml"
-  when: CHRONY_INSTALL_FLAG == True
+- name: Install Chrony
+  package:
+    name: chrony
+    state: latest
+  tags:
+    - packages
 
-- name: Include CONFIGURE Tasks
-  include: configure.yml
-  when: CHRONY_CONFIGURE_FLAG == True
+# FIX ME for CentOS
+- name: Enable and Start chrony Service
+  service:
+    enabled: yes
+    state: started
+    name: chrony
+  tags:
+    - services
+
+- name: Include "{{ ansible_distribution }}" CONFIGURE Tasks
+  include: "configure_{{ ansible_distribution | lower }}.yml"
 ...
