@@ -2,22 +2,31 @@
 - name: Grab Facts
   setup: gather_subset='all'
 
+- include_vars: "{{ item }}"
+  with_first_found:
+   - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}"
+   - "{{ ansible_distribution | lower }}.yml"
+   - "{{ ansible_os_family | lower }}.yml"
+   - "default.yml"
+
 - name: Install Chrony
   package:
-    name: chrony
+    name: "{{ chrony_package }}"
     state: latest
   tags:
     - packages
 
-# FIX ME for CentOS
 - name: Enable and Start chrony Service
   service:
     enabled: yes
     state: started
-    name: chrony
+    name: "{{ chrony_service }}"
   tags:
     - services
 
-- name: Include "{{ ansible_distribution }}" CONFIGURE Tasks
-  include: "configure_{{ ansible_distribution | lower }}.yml"
+- name: Include Configuration Tasks
+  include: "{{ item }}"
+  with_first_found:
+    - configure_{{ ansible_distribution | lower }}.yml"
+    - "default.yml"
 ...

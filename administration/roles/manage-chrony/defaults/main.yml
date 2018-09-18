@@ -6,6 +6,5 @@ chrony_template_centos: chrony-client.j2
 chrony_template_debian: chrony-client.j2
 chrony_template_ubuntu: chrony-client.j2
 chrony_servers:
-  - meraxes.netmode.ntua.gr
   - ntp.grnet.gr
 ...
