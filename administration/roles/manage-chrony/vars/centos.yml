@@ -1,0 +1,5 @@
+chrony_service: chronyd
+chrony_package: chrony
+chrony_template: "{{ chrony_template_centos }}"
+chrony_cfgdest: "{{ chrony_cfgdest_centos }}"
+chrony_hwclockfile: True

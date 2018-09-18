@@ -33,7 +33,9 @@ logchange 0.5
 
 # mailonchange root@localhost 0.5
 
+{% if chrony_hwclockfile %}
 hwclockfile /etc/adjtime
+{% endif %}
 
 makestep 1.0 3
 

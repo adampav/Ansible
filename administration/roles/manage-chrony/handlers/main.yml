@@ -2,4 +2,8 @@
 - name: Restart chrony service
   service: name=chrony state=restarted
   listen: "chrony-restart"
+
+- name: Restart chronyd service
+  service: name=chronyd state=restarted
+  listen: "chronyd-restart"
 ...

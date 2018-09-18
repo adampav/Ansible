@@ -1,0 +1,14 @@
+---
+- name: Configure chrony.conf
+  template:
+    src: "{{ chrony_template }}"
+    dest: "{{ chrony_cfgdest }}"
+    force: yes
+    backup: yes
+    owner: root
+    mode: 0644
+    group: root
+  notify: "{{ chrony_service }}-restart"
+  tags:
+    - configuration
+...
